@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "alwaysStrict": true,
+    "declaration": true,
+    "experimentalDecorators": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "lib": ["es2018"],
+    "module": "CommonJS",
+    "noEmit": false,
+    "noEmitOnError": true,
+    "noFallthroughCasesInSwitch": false,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "outDir": "dist",
+    "resolveJsonModule": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": false,
+    "stripInternal": true,
+    "target": "ES2018"
+  },
+  "include": ["src/index.ts"],
+  "exclude": ["node_modules"]
+}

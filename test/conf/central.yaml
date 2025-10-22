@@ -1,0 +1,3 @@
+name: central
+context: k3d-central
+namespace: default
