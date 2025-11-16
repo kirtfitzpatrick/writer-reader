@@ -2,10 +2,11 @@
  * What this needs to do:
  * - locations
  * - setup sources
- * - setup key masters
+ * - setup key decorators
  */
 
 import { WriterLocation } from "../../src/dependency/source-location";
+import { AwsCliSource } from "../../src/dependency/source/aws-cli-source";
 import { DependencySource } from "../../src/dependency/source/dependency-source";
 import { KubectlSource } from "../../src/dependency/source/kubectl-source";
 import { Config } from "./config";
@@ -14,31 +15,38 @@ export type KeyDecoratorConstant = string;
 export const TargetKeyDecorator: KeyDecoratorConstant = "target";
 export const CentralKeyDecorator: KeyDecoratorConstant = "central";
 
-export const TargetLocation: WriterLocation = "TARGET";
-export const CentralLocation: WriterLocation = "CENTRAL";
+export const K8sTargetLocation: WriterLocation = "K8S_TARGET";
+export const K8sCentralLocation: WriterLocation = "K8S_CENTRAL";
+export const AwsTargetLocation: WriterLocation = "AWS_TARGET";
+export const AwsCentralLocation: WriterLocation = "AWS_CENTRAL";
 
 export class Jig {
-  protected KeyDecoratorDict: { [key in WriterLocation]: Config };
-  protected WriterLocationDict: { [key in WriterLocation]: DependencySource }; // SourceDict?
+  public KeyDecoratorDict: { [key in WriterLocation]: Config };
+  public WriterLocationDict: { [key in WriterLocation]: DependencySource }; // SourceDict?
 
   constructor(name: string) {
-    // KeyMasters
+    // Load up the two key decorators from their config files
     this.KeyDecoratorDict = {
       [CentralKeyDecorator]: Config.load("central"),
       [TargetKeyDecorator]: Config.load(name),
     };
-    // In the case of multiple kinds of sources the conf file could hold that info
-    // but it's so implementation specific I fear it would prevent this from
-    // being a usable system to anyone but those starting from scratch.
-    // ProductLocations
+    // Create the sources for all the different locations we'll test
     this.WriterLocationDict = {
-      [CentralLocation]: new KubectlSource(
+      [K8sCentralLocation]: new KubectlSource(
         this.KeyDecoratorDict[CentralKeyDecorator].namespace,
         this.KeyDecoratorDict[CentralKeyDecorator].context
       ),
-      [TargetLocation]: new KubectlSource(
+      [K8sTargetLocation]: new KubectlSource(
         this.KeyDecoratorDict[TargetKeyDecorator].namespace,
         this.KeyDecoratorDict[TargetKeyDecorator].context
+      ),
+      [AwsCentralLocation]: new AwsCliSource(
+        this.KeyDecoratorDict[CentralKeyDecorator].profile,
+        this.KeyDecoratorDict[CentralKeyDecorator].region
+      ),
+      [AwsTargetLocation]: new AwsCliSource(
+        this.KeyDecoratorDict[TargetKeyDecorator].profile,
+        this.KeyDecoratorDict[TargetKeyDecorator].region
       ),
     };
   }
