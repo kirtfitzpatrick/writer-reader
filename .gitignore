@@ -5,3 +5,4 @@ node_modules
 dist/
 tmp/
 .envrc
+aws-sso-config

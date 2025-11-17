@@ -23,6 +23,6 @@
     "stripInternal": true,
     "target": "ES2018"
   },
-  "include": ["src/index.ts"],
+  "include": ["src", "test"],
   "exclude": ["node_modules"]
 }

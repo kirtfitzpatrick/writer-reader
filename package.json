@@ -21,6 +21,7 @@
     "yaml": "^2.8.0"
   },
   "devDependencies": {
+    "@aws-sdk/client-cloudformation": "^3.932.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^14",
     "cdk8s-cli": "^2.200.103",
