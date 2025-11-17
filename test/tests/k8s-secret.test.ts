@@ -1,7 +1,7 @@
 import { App, Chart } from "cdk8s";
 import { execSync } from "child_process";
-import { ConfigMapReaderChart } from "../charts/k8s-config-map-reader-chart";
-import { ConfigMapWriterChart } from "../charts/k8s-config-map-writer-chart";
+import { K8sSecretReaderChart } from "../charts/k8s-secret-reader-chart";
+import { K8sSecretWriterChart } from "../charts/k8s-secret-writer-chart";
 import { CentralKeyDecorator, Jig, TargetKeyDecorator } from "../lib/jig";
 
 jest.setTimeout(60_000);
@@ -20,20 +20,19 @@ function kubectlApply(manifestYaml: string, context: string) {
   });
 }
 
-describe("Retrieve config map string one one cluster to use in another", () => {
+describe("retrieve secret from one cluster to use in a chart for another cluster", () => {
   it("synthesizes and deploys to cluster A then cluster B", () => {
     const jig = new Jig("sigma");
 
     const writerApp = new App();
-    const writerChart = new ConfigMapWriterChart(writerApp, "config-map-writer-chart", jig);
+    const writerChart = new K8sSecretWriterChart(writerApp, "k8s-secret-writer-chart", jig);
     const writerYaml = synthChartToYaml(writerChart);
-    expect(writerYaml).toContain("I am the config map you seek");
     kubectlApply(writerYaml, jig.KeyDecoratorDict[CentralKeyDecorator].context);
 
     const readerApp = new App();
-    const readerChart = new ConfigMapReaderChart(readerApp, "config-map-reader-chart", jig);
+    const readerChart = new K8sSecretReaderChart(readerApp, "k8s-secret-reader-chart", jig);
     const readerYaml = synthChartToYaml(readerChart);
-    expect(readerYaml).toContain("I am the config map you seek");
+    expect(readerYaml).toContain("I am the secret you seek");
 
     kubectlApply(readerYaml, jig.KeyDecoratorDict[TargetKeyDecorator].context);
   });
