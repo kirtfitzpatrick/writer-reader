@@ -64,10 +64,16 @@ export async function stackExists(cfn: CloudFormationClient, stackName: string):
   }
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function deployTemplate(cfn: CloudFormationClient, stackName: string, template: any): Promise<void> {
   const templateBody = JSON.stringify(template);
+  // console.log(templateBody);
 
   if (!(await stackExists(cfn, stackName))) {
+    // console.log(`Creating stack ${stackName}...`);
     await cfn.send(
       new CreateStackCommand({
         StackName: stackName,
@@ -76,6 +82,7 @@ export async function deployTemplate(cfn: CloudFormationClient, stackName: strin
       })
     );
 
+    // console.log(`Waiting for stack ${stackName} to be created...`);
     await waitUntilStackCreateComplete(
       {
         client: cfn,
@@ -85,6 +92,7 @@ export async function deployTemplate(cfn: CloudFormationClient, stackName: strin
     );
   } else {
     try {
+      // console.log(`Updating stack ${stackName}...`);
       await cfn.send(
         new UpdateStackCommand({
           StackName: stackName,
@@ -93,6 +101,7 @@ export async function deployTemplate(cfn: CloudFormationClient, stackName: strin
         })
       );
 
+      // console.log(`Waiting for stack ${stackName} to be updated...`);
       await waitUntilStackUpdateComplete(
         {
           client: cfn,
@@ -101,11 +110,13 @@ export async function deployTemplate(cfn: CloudFormationClient, stackName: strin
         { StackName: stackName }
       );
     } catch (err: any) {
+      // console.log("error during stack update:", err);
       if (
         (err.name === "ValidationError" || err.name === "ValidationException") &&
         typeof err.message === "string" &&
         /No updates are to be performed/.test(err.message)
       ) {
+        // console.log(`No updates to be performed on stack ${stackName}.`);
         return;
       }
       throw err;
