@@ -1,4 +1,3 @@
-
 import { readFileSync } from "fs";
 import { join, kebabCase } from "lodash";
 import { parse } from "yaml";
@@ -7,7 +6,7 @@ import { KeyDecorator } from "../../src/dependency/key-decorator";
 export class Config implements KeyDecorator {
   static load(name: string): Config {
     const conf = parse(readFileSync(`test/conf/${name}.yaml`, "utf8"));
-    return new Config(conf.name, conf.context, conf.namespace, conf.profile, conf.region);
+    return new Config(conf.name, conf.context, conf.namespace, conf.profile, conf.account, conf.region);
   }
 
   constructor(
@@ -17,7 +16,8 @@ export class Config implements KeyDecorator {
     public readonly namespace: string,
     // AWS CLI source properties
     public readonly profile: string,
-    public readonly region: string,
+    public readonly account: string,
+    public readonly region: string
   ) {}
 
   // multiple key decorators can be used within a codebase. Ex. one for

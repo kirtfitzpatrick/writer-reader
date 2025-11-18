@@ -2,7 +2,7 @@ import { App, Chart } from "cdk8s";
 import { execSync } from "child_process";
 import { ConfigMapReaderChart } from "../charts/k8s-config-map-reader-chart";
 import { ConfigMapWriterChart } from "../charts/k8s-config-map-writer-chart";
-import { CentralKeyDecorator, Jig, TargetKeyDecorator } from "../lib/jig";
+import { CENTRAL, Jig, TARGET } from "../lib/jig";
 
 jest.setTimeout(60_000);
 
@@ -28,13 +28,13 @@ describe("Retrieve config map string one one cluster to use in another", () => {
     const writerChart = new ConfigMapWriterChart(writerApp, "config-map-writer-chart", jig);
     const writerYaml = synthChartToYaml(writerChart);
     expect(writerYaml).toContain("I am the config map you seek");
-    kubectlApply(writerYaml, jig.KeyDecoratorDict[CentralKeyDecorator].context);
+    kubectlApply(writerYaml, jig.decorators[CENTRAL].context);
 
     const readerApp = new App();
     const readerChart = new ConfigMapReaderChart(readerApp, "config-map-reader-chart", jig);
     const readerYaml = synthChartToYaml(readerChart);
     expect(readerYaml).toContain("I am the config map you seek");
 
-    kubectlApply(readerYaml, jig.KeyDecoratorDict[TargetKeyDecorator].context);
+    kubectlApply(readerYaml, jig.decorators[TARGET].context);
   });
 });

@@ -2,7 +2,7 @@ import { App, Chart } from "cdk8s";
 import { execSync } from "child_process";
 import { K8sSecretReaderChart } from "../charts/k8s-secret-reader-chart";
 import { K8sSecretWriterChart } from "../charts/k8s-secret-writer-chart";
-import { CentralKeyDecorator, Jig, TargetKeyDecorator } from "../lib/jig";
+import { CENTRAL, Jig, TARGET } from "../lib/jig";
 
 jest.setTimeout(60_000);
 
@@ -27,13 +27,13 @@ describe("retrieve secret from one cluster to use in a chart for another cluster
     const writerApp = new App();
     const writerChart = new K8sSecretWriterChart(writerApp, "k8s-secret-writer-chart", jig);
     const writerYaml = synthChartToYaml(writerChart);
-    kubectlApply(writerYaml, jig.KeyDecoratorDict[CentralKeyDecorator].context);
+    kubectlApply(writerYaml, jig.decorators[CENTRAL].context);
 
     const readerApp = new App();
     const readerChart = new K8sSecretReaderChart(readerApp, "k8s-secret-reader-chart", jig);
     const readerYaml = synthChartToYaml(readerChart);
     expect(readerYaml).toContain("I am the secret you seek");
 
-    kubectlApply(readerYaml, jig.KeyDecoratorDict[TargetKeyDecorator].context);
+    kubectlApply(readerYaml, jig.decorators[TARGET].context);
   });
 });
