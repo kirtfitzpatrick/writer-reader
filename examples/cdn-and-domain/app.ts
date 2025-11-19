@@ -6,7 +6,7 @@
  */
 
 import { App } from "aws-cdk-lib";
-import { SourceLocation } from "../../src/dependency/source-location";
+import { AWS_TARGET } from "../../src/dependency/jig";
 import { Jig } from "./jig";
 import { VpcStack } from "./vpc-stack";
 
@@ -16,7 +16,7 @@ export class MultiAccountAndRegionApp {
     const jig = new Jig(envName);
 
     // VPC Stack
-    const vpcStack = new VpcStack(app, "VpcStack", jig.stackProps(SourceLocation.TARGET));
+    const vpcStack = new VpcStack(app, "VpcStack", jig.stackProps(AWS_TARGET));
     // CDN Stack
     // Domain Stack
   }

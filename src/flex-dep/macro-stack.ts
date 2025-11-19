@@ -13,8 +13,8 @@ import { ReadAccessRoleStack } from "./read-access-role-stack";
 export const PREFIX = "FlexDep"; // This should be configurable
 
 export interface FlexDepLocations {
-  producingLocation: AwsLocation;
-  consumingLocation: AwsLocation;
+  writingLocation: AwsLocation;
+  readingLocation: AwsLocation;
 }
 
 export interface MacroStackProps extends JigStackProps, FlexDepLocations {}
@@ -25,18 +25,18 @@ export class MacroStack extends Stack {
   }
 
   protected static lambdaName(props: FlexDepLocations): string {
-    return cfnLabel(PREFIX, props.producingLocation.envName, "MacroLambda");
+    return cfnLabel(PREFIX, props.writingLocation.envName, "MacroLambda");
   }
 
   public static macroName(props: FlexDepLocations): string {
-    return cfnLabel(PREFIX, props.producingLocation.envName, "Macro");
+    return cfnLabel(PREFIX, props.writingLocation.envName, "Macro");
   }
 
   public static macroValue(parameterStoreKey: string, props: FlexDepLocations): string {
     return MacroStack.transform(MacroStack.macroName(props), {
       parameterStoreRoleArn: ReadAccessRoleStack.roleArn(props),
       parameterStoreKey: parameterStoreKey,
-      parameterStoreRegion: props.producingLocation.region,
+      parameterStoreRegion: props.writingLocation.region,
     }).toString();
   }
 
@@ -51,6 +51,7 @@ export class MacroStack extends Stack {
 
   constructor(scope: Construct, id: string, props: MacroStackProps) {
     super(scope, id, props);
+    console.log(id, props.env);
 
     new NodejsFunction(this, "Lambda", {
       functionName: MacroStack.lambdaName(props),

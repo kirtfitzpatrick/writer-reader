@@ -3,6 +3,7 @@
 !jest.config.js
 node_modules
 dist/
+cdk.out/
 tmp/
 .envrc
 aws-sso-config

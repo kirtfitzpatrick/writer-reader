@@ -3,7 +3,7 @@ import { Construct } from "constructs";
 import { join, kebabCase } from "lodash";
 import { Dependency, Reader, Writer } from "./dependency-interface";
 import { KeyDecorator } from "./key-decorator";
-import { WriterLocation } from "./source-location";
+import { WrittenLocation } from "./source-location";
 import { DependencySource } from "./source/dependency-source";
 
 export abstract class K8sConfigMapDependency implements Dependency {
@@ -59,9 +59,9 @@ export class K8sConfigMapStringWriter extends K8sConfigMapDependency implements 
 export class K8sConfigMapStringReader extends K8sConfigMapDependency implements Reader {
   protected _value: string;
   public writer: K8sConfigMapStringWriter;
-  readonly writerLocation: WriterLocation;
+  readonly writerLocation: WrittenLocation;
 
-  constructor(writer: K8sConfigMapStringWriter, writerLocation: WriterLocation) {
+  constructor(writer: K8sConfigMapStringWriter, writerLocation: WrittenLocation) {
     super(writer.constant, writer.decorator);
     this.writer = writer;
     this.writerLocation = writerLocation;
@@ -75,7 +75,7 @@ export class K8sConfigMapStringReader extends K8sConfigMapDependency implements 
     return this._value;
   }
 
-  public fetch(keyDecorator: KeyDecorator, sources: { [key: WriterLocation]: DependencySource }) {
+  public fetch(keyDecorator: KeyDecorator, sources: { [key: WrittenLocation]: DependencySource }) {
     this._value = sources[this.writerLocation].getString(this.getKeyName(keyDecorator));
 
     return this._value;

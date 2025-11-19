@@ -11,15 +11,16 @@ export interface AssumeRoleStackProps extends JigStackProps, FlexDepLocations {}
 export class AssumeRoleStack extends Stack {
   // "AWS":"arn:aws:iam::240855652656:role/SigmaCentralFlexDepLambdaRole"
   public static roleArn(props: FlexDepLocations): string {
-    return "arn:aws:iam::" + props.consumingLocation.account + ":role/" + AssumeRoleStack.roleName(props);
+    return "arn:aws:iam::" + props.readingLocation.account + ":role/" + AssumeRoleStack.roleName(props);
   }
 
   public static roleName(props: FlexDepLocations): string {
-    return cfnLabel("FlexDep", props.producingLocation.envName, "AssumeRole");
+    return cfnLabel("FlexDep", props.writingLocation.envName, "AssumeRole");
   }
 
   constructor(scope: Construct, id: string, props: AssumeRoleStackProps) {
     super(scope, id, props);
+    console.log(id, props.env);
 
     new Role(this, "Role", {
       roleName: AssumeRoleStack.roleName(props),

@@ -5,9 +5,9 @@ import { join, kebabCase } from "lodash";
 import { MacroStack } from "../flex-dep/macro-stack";
 import { FgGray, FgIn, Reset } from "../lib/colors";
 import { Dependency, Reader, Writer } from "./dependency-interface";
-import { JigStackProps } from "./jig";
+import { AWS_LOCAL, JigStackProps } from "./jig";
 import { KeyDecorator } from "./key-decorator";
-import { AwsLocation, SourceLocation, WriterLocation } from "./source-location";
+import { AwsLocation, WriterLocation, WrittenLocation } from "./source-location";
 import { DependencySource } from "./source/dependency-source";
 
 export abstract class AwsParameterStoreDependency implements Dependency {
@@ -58,9 +58,9 @@ export class AwsParameterStoreStringWriter extends AwsParameterStoreDependency i
 export class AwsParameterStoreStringReader extends AwsParameterStoreDependency implements Reader {
   protected _value: string;
   public writer: AwsParameterStoreStringWriter;
-  readonly writerLocation: SourceLocation;
+  readonly writerLocation: WrittenLocation;
 
-  constructor(writer: AwsParameterStoreStringWriter, writerLocation: SourceLocation) {
+  constructor(writer: AwsParameterStoreStringWriter, writerLocation: WrittenLocation) {
     super(writer.constant, writer.decorator);
     this.writer = writer;
     this.writerLocation = writerLocation;
@@ -108,7 +108,7 @@ export class AwsParameterStoreStringReader extends AwsParameterStoreDependency i
 
   public paramStoreTransformToken(
     decorator: KeyDecorator,
-    locations: { [key in SourceLocation]: AwsLocation }
+    locations: { [key in WrittenLocation]: AwsLocation }
   ): string {
     const parameterStoreKey = this.getKeyName(decorator);
     const writerLocation = locations[this.writerLocation];
@@ -118,8 +118,8 @@ export class AwsParameterStoreStringReader extends AwsParameterStoreDependency i
     );
 
     return MacroStack.macroValue(parameterStoreKey, {
-      producingLocation: writerLocation,
-      consumingLocation: locations[SourceLocation.LOCAL],
+      writingLocation: writerLocation,
+      readingLocation: locations[AWS_LOCAL],
     });
   }
 }

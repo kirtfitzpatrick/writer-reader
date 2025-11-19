@@ -3,7 +3,7 @@ import { Construct } from "constructs";
 import { join, kebabCase } from "lodash";
 import { Dependency, Reader, Writer } from "./dependency-interface";
 import { KeyDecorator } from "./key-decorator";
-import { WriterLocation } from "./source-location";
+import { WrittenLocation } from "./source-location";
 import { DependencySource } from "./source/dependency-source";
 
 export abstract class K8sSecretDependency implements Dependency {
@@ -60,9 +60,9 @@ export class K8sSecretStringWriter extends K8sSecretDependency implements Writer
 export class K8sSecretStringReader extends K8sSecretDependency implements Reader {
   protected _value: string;
   public writer: K8sSecretStringWriter;
-  readonly writerLocation: WriterLocation;
+  readonly writerLocation: WrittenLocation;
 
-  constructor(writer: K8sSecretStringWriter, writerLocation: WriterLocation) {
+  constructor(writer: K8sSecretStringWriter, writerLocation: WrittenLocation) {
     super(writer.constant, writer.decorator);
     this.writer = writer;
     this.writerLocation = writerLocation;
@@ -76,7 +76,7 @@ export class K8sSecretStringReader extends K8sSecretDependency implements Reader
     return this._value;
   }
 
-  public fetch(keyDecorator: KeyDecorator, sources: { [key: WriterLocation]: DependencySource }) {
+  public fetch(keyDecorator: KeyDecorator, sources: { [key: WrittenLocation]: DependencySource }) {
     this._value = sources[this.writerLocation].getSecret(this.getKeyName(keyDecorator));
 
     return this._value;

@@ -23,6 +23,6 @@
     "stripInternal": true,
     "target": "ES2018"
   },
-  "include": ["src", "test"],
+  "include": ["src", "test", "tmp/flex-dep-functions.ts"],
   "exclude": ["node_modules"]
 }

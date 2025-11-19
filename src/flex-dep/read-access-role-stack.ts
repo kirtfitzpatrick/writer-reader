@@ -10,15 +10,16 @@ export interface ReadAccessRoleStackProps extends JigStackProps, FlexDepLocation
 
 export class ReadAccessRoleStack extends Stack {
   public static roleArn(props: FlexDepLocations): string {
-    return "arn:aws:iam::" + props.producingLocation.account + ":role/" + ReadAccessRoleStack.roleName(props);
+    return "arn:aws:iam::" + props.writingLocation.account + ":role/" + ReadAccessRoleStack.roleName(props);
   }
 
   protected static roleName(props: FlexDepLocations): string {
-    return cfnLabel("FlexDep", props.consumingLocation.envName, "ReadAccessRole");
+    return cfnLabel("FlexDep", props.readingLocation.envName, "ReadAccessRole");
   }
 
   constructor(scope: Construct, id: string, props: ReadAccessRoleStackProps) {
     super(scope, id, props);
+    console.log(id, props.env);
 
     new Role(this, ReadAccessRoleStack.roleName(props), {
       roleName: ReadAccessRoleStack.roleName(props),

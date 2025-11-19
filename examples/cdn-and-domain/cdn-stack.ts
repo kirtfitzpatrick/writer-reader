@@ -14,7 +14,7 @@ import {
   AwsParameterStoreStringReader,
   AwsParameterStoreStringWriter,
 } from "../../src/dependency/aws-parameter-store-dependency";
-import { SourceLocation } from "../../src/dependency/source-location";
+import { AWS_TARGET } from "../../src/dependency/jig";
 import { ConfigKeyDecorator } from "./config";
 import { JigStackProps } from "./jig";
 import { S3StackWriters } from "./s3-stack";
@@ -24,7 +24,7 @@ export const CdnStackWriters = {
 } as const;
 
 export const CdnStackReaders = {
-  bucketArn: new AwsParameterStoreStringReader(S3StackWriters.bucketArn, SourceLocation.TARGET),
+  bucketArn: new AwsParameterStoreStringReader(S3StackWriters.bucketArn, AWS_TARGET),
 } as const;
 
 export class CdnStack extends Stack {

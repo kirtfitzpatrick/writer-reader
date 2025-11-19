@@ -1,9 +1,9 @@
-export enum SourceLocation {
-  TARGET = "TARGET",
-  GLOBAL = "GLOBAL",
-  CENTRAL = "CENTRAL",
-  LOCAL = "LOCAL",
-} // TODO: this is still problematic. It needs to be extensible while maintaining strong types.
+// export enum SourceLocation {
+//   TARGET = "TARGET",
+//   GLOBAL = "GLOBAL",
+//   CENTRAL = "CENTRAL",
+//   LOCAL = "LOCAL",
+// } // TODO: this is still problematic. It needs to be extensible while maintaining strong types.
 
 export interface AwsLocation {
   envName: string;
@@ -11,7 +11,7 @@ export interface AwsLocation {
   region: string;
 }
 
-export type WriterLocation = string;
+// export type WriterLocation = string;
 
 /**
  * New stuff
