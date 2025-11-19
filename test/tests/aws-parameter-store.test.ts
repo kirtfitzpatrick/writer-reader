@@ -9,6 +9,12 @@ import {
 import { cfnClient, deleteStack, deployTemplate, getAwsProfileCredentials } from "../lib/aws-functions";
 import { ConfigKeyDecorator } from "../lib/config";
 import { AwsCentralLocation, CENTRAL, Jig, TARGET } from "../lib/jig";
+/**
+ * - two stacks both part of the sigma app so all labels reflect this.
+ * - one stack needs to be deployed to the central account and the other to sigma
+ * - the sigma stack needs information from the central stack
+ * - so the central account stores this info in a properly named parameter
+ */
 
 /**
  * Writer Stack - deployed to central location

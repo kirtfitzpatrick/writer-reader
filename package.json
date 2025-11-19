@@ -11,6 +11,8 @@
     "test": "jest"
   },
   "dependencies": {
+    "@aws-sdk/client-ssm": "^3.934.0",
+    "@aws-sdk/client-sts": "^3.934.0",
     "@types/lodash": "^4.17.18",
     "@types/yaml": "^1.9.6",
     "aws-cdk-lib": "^2.224.0",

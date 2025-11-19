@@ -1,9 +1,13 @@
+import { CfnParameter } from "aws-cdk-lib";
 import { StringParameter } from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
 import { join, kebabCase } from "lodash";
+import { MacroStack } from "../flex-dep/macro-stack";
+import { FgGray, FgIn, Reset } from "../lib/colors";
 import { Dependency, Reader, Writer } from "./dependency-interface";
+import { JigStackProps } from "./jig";
 import { KeyDecorator } from "./key-decorator";
-import { WriterLocation } from "./source-location";
+import { AwsLocation, SourceLocation, WriterLocation } from "./source-location";
 import { DependencySource } from "./source/dependency-source";
 
 export abstract class AwsParameterStoreDependency implements Dependency {
@@ -46,7 +50,7 @@ export class AwsParameterStoreStringWriter extends AwsParameterStoreDependency i
 
     this.construct = new StringParameter(scope, id, {
       parameterName: key,
-      stringValue: this.value
+      stringValue: this.value,
     });
   }
 }
@@ -54,9 +58,9 @@ export class AwsParameterStoreStringWriter extends AwsParameterStoreDependency i
 export class AwsParameterStoreStringReader extends AwsParameterStoreDependency implements Reader {
   protected _value: string;
   public writer: AwsParameterStoreStringWriter;
-  readonly writerLocation: WriterLocation;
+  readonly writerLocation: SourceLocation;
 
-  constructor(writer: AwsParameterStoreStringWriter, writerLocation: WriterLocation) {
+  constructor(writer: AwsParameterStoreStringWriter, writerLocation: SourceLocation) {
     super(writer.constant, writer.decorator);
     this.writer = writer;
     this.writerLocation = writerLocation;
@@ -74,5 +78,48 @@ export class AwsParameterStoreStringReader extends AwsParameterStoreDependency i
     this._value = sources[this.writerLocation].getString(this.getKeyName(keyDecorator));
 
     return this._value;
+  }
+
+  public tokenize(scope: Construct, props: JigStackProps): string {
+    if (this.writerLocation === props.jig.localLocation) {
+      // CfnParameter
+      return this.paramStoreCfnToken(scope, props.targetConf);
+    } else {
+      // TODO: Supposedly parameters can span accounts and regions now.
+      //       We should check if this is available from within cloudformation.
+      //       We could do away with the macro if that's the case.
+      // Fn::Transform / Macro
+      return this.paramStoreTransformToken(props.targetConf, props.jig.getLocations());
+    }
+  }
+
+  public paramStoreCfnToken(scope: Construct, keyMaster: KeyDecorator): string {
+    const keyName = this.getKeyName(keyMaster);
+
+    const cfnParam = new CfnParameter(scope, join(keyName, "CfnParameter"), {
+      type: "AWS::SSM::Parameter::Value<String>",
+      default: keyName,
+    });
+
+    console.log(`    ${FgIn}paramStoreCfnToken:${FgGray} ${keyName}, ${cfnParam.valueAsString}${Reset}`);
+
+    return cfnParam.valueAsString;
+  }
+
+  public paramStoreTransformToken(
+    decorator: KeyDecorator,
+    locations: { [key in SourceLocation]: AwsLocation }
+  ): string {
+    const parameterStoreKey = this.getKeyName(decorator);
+    const writerLocation = locations[this.writerLocation];
+
+    console.log(
+      `    ${FgIn}paramStoreTransformToken:${FgGray} ${parameterStoreKey}, account: ${writerLocation.account}, region: ${writerLocation.region}${Reset}`
+    );
+
+    return MacroStack.macroValue(parameterStoreKey, {
+      producingLocation: writerLocation,
+      consumingLocation: locations[SourceLocation.LOCAL],
+    });
   }
 }
