@@ -1,9 +1,3 @@
-/**
- * Assume a CloudFront Distribution needs to be created in an environment
- * account in the global region, because that's where CloudFront is managed from.
- * Once created a subdomain off the master domain in the central account needs
- * to point to the distribution ID,
- */
 import { Stack } from "aws-cdk-lib";
 import { Distribution } from "aws-cdk-lib/aws-cloudfront";
 import { S3BucketOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
@@ -14,9 +8,8 @@ import {
   AwsParameterStoreStringReader,
   AwsParameterStoreStringWriter,
 } from "../../src/dependency/aws-parameter-store-dependency";
-import { AWS_TARGET } from "../../src/dependency/jig";
+import { AWS_TARGET, JigStackProps } from "../../src/dependency/jig";
 import { ConfigKeyDecorator } from "./config";
-import { JigStackProps } from "./jig";
 import { S3StackWriters } from "./s3-stack";
 
 export const CdnStackWriters = {
@@ -30,13 +23,14 @@ export const CdnStackReaders = {
 export class CdnStack extends Stack {
   constructor(scope: Construct, id: string, props: JigStackProps) {
     super(scope, id, props);
+    console.log(id, props.env);
 
-    // fetch the arn via the command line, which won't work... Need to import the tokenization functions
-    CdnStackReaders.bucketArn.fetch(props.targetConf, props.jig.sources);
-    const bucket = Bucket.fromBucketArn(this, "OriginBucket", CdnStackReaders.bucketArn.value);
+    const bucketArnToken = CdnStackReaders.bucketArn.tokenize(this, props);
+
+    const bucket = Bucket.fromBucketArn(this, "OriginBucket", bucketArnToken);
     const distribution = new Distribution(this, "Distribution", {
       defaultBehavior: {
-        origin: S3BucketOrigin.withOriginAccessControl(bucket),
+        origin: S3BucketOrigin.withOriginAccessControl(bucket), // darn circular dependency again. Wish they'd fix that
       },
     });
 

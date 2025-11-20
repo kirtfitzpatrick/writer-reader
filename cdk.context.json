@@ -1,0 +1,12 @@
+{
+  "availability-zones:account=668318664362:region=us-west-2": [
+    "us-west-2a",
+    "us-west-2b",
+    "us-west-2c",
+    "us-west-2d"
+  ],
+  "hosted-zone:account=330938320743:domainName=tintopcamper.com:region=us-east-1": {
+    "Id": "/hostedzone/Z05435431NYTAXLRPTZYN",
+    "Name": "tintopcamper.com."
+  }
+}

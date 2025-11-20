@@ -2,12 +2,12 @@ import { CfnParameter } from "aws-cdk-lib";
 import { StringParameter } from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
 import { join, kebabCase } from "lodash";
-import { MacroStack } from "../flex-dep/macro-stack";
+import { MacroStack } from "../cfn-token/macro-stack";
 import { FgGray, FgIn, Reset } from "../lib/colors";
 import { Dependency, Reader, Writer } from "./dependency-interface";
 import { AWS_LOCAL, JigStackProps } from "./jig";
 import { KeyDecorator } from "./key-decorator";
-import { AwsLocation, WriterLocation, WrittenLocation } from "./source-location";
+import { AwsLocation, WrittenLocation } from "./source-location";
 import { DependencySource } from "./source/dependency-source";
 
 export abstract class AwsParameterStoreDependency implements Dependency {
@@ -74,7 +74,7 @@ export class AwsParameterStoreStringReader extends AwsParameterStoreDependency i
     return this._value;
   }
 
-  public fetch(keyDecorator: KeyDecorator, sources: { [key: WriterLocation]: DependencySource }) {
+  public fetch(keyDecorator: KeyDecorator, sources: { [key: WrittenLocation]: DependencySource }) {
     this._value = sources[this.writerLocation].getString(this.getKeyName(keyDecorator));
 
     return this._value;
@@ -85,9 +85,6 @@ export class AwsParameterStoreStringReader extends AwsParameterStoreDependency i
       // CfnParameter
       return this.paramStoreCfnToken(scope, props.targetConf);
     } else {
-      // TODO: Supposedly parameters can span accounts and regions now.
-      //       We should check if this is available from within cloudformation.
-      //       We could do away with the macro if that's the case.
       // Fn::Transform / Macro
       return this.paramStoreTransformToken(props.targetConf, props.jig.getLocations());
     }

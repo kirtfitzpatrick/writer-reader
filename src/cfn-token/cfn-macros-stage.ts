@@ -3,15 +3,15 @@ import { Construct } from "constructs";
 import { AWS_GLOBAL, AWS_TARGET, Jig } from "../dependency/jig";
 import { cfnLabel } from "../lib/labels";
 import { AssumeRoleStack } from "./assume-role-stack";
-import { FlexDepLocations, MacroStack } from "./macro-stack";
+import { CfnTokenLocations, MacroStack } from "./macro-stack";
 import { ReadAccessRoleStack } from "./read-access-role-stack";
 
-export interface FlexDepStageProps extends StackProps, FlexDepLocations {
+export interface CfnMacrosStageProps extends StackProps, CfnTokenLocations {
   prefix?: string;
 }
 
-export class FlexDepStage extends Stage {
-  public static oneWayName(props: FlexDepLocations): string {
+export class CfnMacrosStage extends Stage {
+  public static oneWayName(props: CfnTokenLocations): string {
     return cfnLabel(
       props.readingLocation.envName, //
       "Read",
@@ -19,18 +19,18 @@ export class FlexDepStage extends Stage {
     );
   }
 
-  public static oneWayStacks(scope: Construct, props: FlexDepStageProps): { [key: string]: Stack } {
+  public static oneWayStacks(scope: Construct, props: CfnMacrosStageProps): { [key: string]: Stack } {
     const writingJig = new Jig(props.writingLocation.envName);
     const readingJig = new Jig(props.readingLocation.envName);
-    const prefix = props.prefix ?? FlexDepStage.oneWayName(props);
+    const prefix = props.prefix ?? CfnMacrosStage.oneWayName(props);
     let lastStacks: { [key: string]: Stack } = {};
 
-    const readRoleStack = new ReadAccessRoleStack(scope, prefix + "ReadRoleStack", {
+    const readRoleStack = new ReadAccessRoleStack(scope, cfnLabel(prefix + "ReadRoleStack"), {
       ...writingJig.stackProps(AWS_GLOBAL),
       writingLocation: props.writingLocation,
       readingLocation: props.readingLocation,
     });
-    const assumeRoleStack = new AssumeRoleStack(scope, prefix + "AssumeRoleStack", {
+    const assumeRoleStack = new AssumeRoleStack(scope, cfnLabel(prefix + "AssumeRoleStack"), {
       ...readingJig.stackProps(AWS_GLOBAL),
       writingLocation: props.writingLocation,
       readingLocation: props.readingLocation,
@@ -57,8 +57,8 @@ export class FlexDepStage extends Stage {
     return lastStacks;
   }
 
-  constructor(scope: Construct, id: string, props: FlexDepStageProps) {
+  constructor(scope: Construct, id: string, props: CfnMacrosStageProps) {
     super(scope, id, props);
-    FlexDepStage.oneWayStacks(this, { ...props, prefix: "" });
+    CfnMacrosStage.oneWayStacks(this, { ...props, prefix: "" });
   }
 }

@@ -4,16 +4,16 @@ import { Construct } from "constructs";
 import { JigStackProps } from "../dependency/jig";
 import { cfnLabel } from "../lib/labels";
 import { AssumeRoleStack } from "./assume-role-stack";
-import { FlexDepLocations } from "./macro-stack";
+import { CfnTokenLocations } from "./macro-stack";
 
-export interface ReadAccessRoleStackProps extends JigStackProps, FlexDepLocations {}
+export interface ReadAccessRoleStackProps extends JigStackProps, CfnTokenLocations {}
 
 export class ReadAccessRoleStack extends Stack {
-  public static roleArn(props: FlexDepLocations): string {
+  public static roleArn(props: CfnTokenLocations): string {
     return "arn:aws:iam::" + props.writingLocation.account + ":role/" + ReadAccessRoleStack.roleName(props);
   }
 
-  protected static roleName(props: FlexDepLocations): string {
+  protected static roleName(props: CfnTokenLocations): string {
     return cfnLabel("FlexDep", props.readingLocation.envName, "ReadAccessRole");
   }
 

@@ -3,18 +3,18 @@ import { PolicyDocument, PolicyStatement, Role, ServicePrincipal } from "aws-cdk
 import { Construct } from "constructs";
 import { JigStackProps } from "../dependency/jig";
 import { cfnLabel } from "../lib/labels";
-import { FlexDepLocations } from "./macro-stack";
+import { CfnTokenLocations } from "./macro-stack";
 import { ReadAccessRoleStack } from "./read-access-role-stack";
 
-export interface AssumeRoleStackProps extends JigStackProps, FlexDepLocations {}
+export interface AssumeRoleStackProps extends JigStackProps, CfnTokenLocations {}
 
 export class AssumeRoleStack extends Stack {
   // "AWS":"arn:aws:iam::240855652656:role/SigmaCentralFlexDepLambdaRole"
-  public static roleArn(props: FlexDepLocations): string {
+  public static roleArn(props: CfnTokenLocations): string {
     return "arn:aws:iam::" + props.readingLocation.account + ":role/" + AssumeRoleStack.roleName(props);
   }
 
-  public static roleName(props: FlexDepLocations): string {
+  public static roleName(props: CfnTokenLocations): string {
     return cfnLabel("FlexDep", props.writingLocation.envName, "AssumeRole");
   }
 

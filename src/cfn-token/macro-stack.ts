@@ -5,34 +5,34 @@ import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
 import { JigStackProps } from "../dependency/jig";
 import { AwsLocation } from "../dependency/source-location";
-import { MacroEventParams } from "../flex-dep/macro";
 import { cfnLabel } from "../lib/labels";
 import { AssumeRoleStack } from "./assume-role-stack";
+import { MacroEventParams } from "./macro";
 import { ReadAccessRoleStack } from "./read-access-role-stack";
 
-export const PREFIX = "FlexDep"; // This should be configurable
+export const PREFIX = "CfnToken"; // This should be configurable
 
-export interface FlexDepLocations {
+export interface CfnTokenLocations {
   writingLocation: AwsLocation;
   readingLocation: AwsLocation;
 }
 
-export interface MacroStackProps extends JigStackProps, FlexDepLocations {}
+export interface MacroStackProps extends JigStackProps, CfnTokenLocations {}
 
 export class MacroStack extends Stack {
-  public static lambdaArn(stack: Stack, props: FlexDepLocations): string {
+  public static lambdaArn(stack: Stack, props: CfnTokenLocations): string {
     return `arn:aws:lambda:${stack.region}:${stack.account}:function:${MacroStack.lambdaName(props)}`;
   }
 
-  protected static lambdaName(props: FlexDepLocations): string {
+  protected static lambdaName(props: CfnTokenLocations): string {
     return cfnLabel(PREFIX, props.writingLocation.envName, "MacroLambda");
   }
 
-  public static macroName(props: FlexDepLocations): string {
+  public static macroName(props: CfnTokenLocations): string {
     return cfnLabel(PREFIX, props.writingLocation.envName, "Macro");
   }
 
-  public static macroValue(parameterStoreKey: string, props: FlexDepLocations): string {
+  public static macroValue(parameterStoreKey: string, props: CfnTokenLocations): string {
     return MacroStack.transform(MacroStack.macroName(props), {
       parameterStoreRoleArn: ReadAccessRoleStack.roleArn(props),
       parameterStoreKey: parameterStoreKey,
@@ -55,7 +55,7 @@ export class MacroStack extends Stack {
 
     new NodejsFunction(this, "Lambda", {
       functionName: MacroStack.lambdaName(props),
-      entry: "src/flex-dep/macro.ts",
+      entry: "src/cfn-token/macro.ts",
       handler: "handler",
       role: Role.fromRoleArn(this, "Role", AssumeRoleStack.roleArn(props)),
       runtime: Runtime.NODEJS_18_X,

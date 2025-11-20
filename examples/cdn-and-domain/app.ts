@@ -6,8 +6,9 @@
  */
 
 import { App } from "aws-cdk-lib";
-import { AWS_TARGET } from "../../src/dependency/jig";
-import { Jig } from "./jig";
+import { AWS_CENTRAL, AWS_TARGET, Jig } from "../../src/dependency/jig";
+import { DomainStack } from "./domain-stack";
+import { S3Stack } from "./s3-stack";
 import { VpcStack } from "./vpc-stack";
 
 export class MultiAccountAndRegionApp {
@@ -15,9 +16,15 @@ export class MultiAccountAndRegionApp {
     const app = new App();
     const jig = new Jig(envName);
 
-    // VPC Stack
     const vpcStack = new VpcStack(app, "VpcStack", jig.stackProps(AWS_TARGET));
-    // CDN Stack
-    // Domain Stack
+    const s3Stack = new S3Stack(app, "S3Stack", jig.stackProps(AWS_TARGET));
+    // CF Distributions suck. Circular permissions every time. Ugh.
+    // const cdnStack = new CdnStack(app, "CdnStack", jig.stackProps(AWS_GLOBAL));
+    // cdnStack.addDependency(s3Stack); // CDN Stack depends on S3 Stack
+
+    const domainStack = new DomainStack(app, "DomainStack", jig.stackProps(AWS_CENTRAL));
+    domainStack.addDependency(s3Stack); // Domain Stack depends on S3 Stack
   }
 }
+
+new MultiAccountAndRegionApp(process.argv[2]);
