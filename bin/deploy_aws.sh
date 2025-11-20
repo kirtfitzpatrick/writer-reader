@@ -47,6 +47,6 @@ fi
 _echo_run "npx cdk -a '${APP_STR}' ${PASS_THROUGH_PARAMS}"
 # echo "npx cdk -a '${APP_STR}' ${PASS_THROUGH_PARAMS}"
 EXIT_STATUS=$?
-
+say "finished"
 
 exit $EXIT_STATUS

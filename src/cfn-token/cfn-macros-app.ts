@@ -20,6 +20,11 @@ export class CfnMacrosApp {
       readingLocation: targetConf,
       prefix: "CfnTokenXRegion",
     });
+    CfnMacrosStage.oneWayStacks(scope, {
+      writingLocation: centralConf,
+      readingLocation: targetConf,
+      prefix: "CfnTokenRXAcct",
+    });
 
     app.synth();
   }
