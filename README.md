@@ -45,7 +45,8 @@ CDK can't do. Not only can it not do it within an app, but it absolutely can't
 do it across apps which any mature system will need to do.
 
 Generally you'll define your Writers and Readers as consts at the top of your
-stack and chart files. It just makes the code more readable this way.
+stack and chart files. It makes the code more readable this way as well as makes
+for easy importing and use by the Readers that need to retrieve the Writers data.
 
 ```typescript
 // vpc-stack.ts
@@ -63,7 +64,7 @@ export class VpcStack extends Stack {
     });
 
     // You may want to clone the Writers incase this stack gets used multiple
-    // times within and app
+    // times within an app
     const writers = cloneDeep(VpcStackWriters);
     writers.vpcId.value = vpc.vpcId; // Assign the value
     // dehydrate creates the Parameter Store StringParameter construct as part

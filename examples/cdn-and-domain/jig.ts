@@ -5,6 +5,13 @@ import { AwsCliSource } from "../../src/dependency/source/aws-cli-source";
 import { DependencySource } from "../../src/dependency/source/dependency-source";
 import { Config } from "./config";
 
+/**
+ * Implementing the Jig abstraction is what makes keeping track of all the
+ * multi-region, multi-account details simple. Though it looks complex to
+ * implement it's fairly repetitive once you know the pattern. Every system can
+ * vary wildly so this has to be left as an exercise for the implementer. But
+ * you can get a pretty good handle on the basics of the pattern here.
+ */
 export interface JigStackProps extends JigBaseStackProps {
   jig: Jig;
   targetConf: Config;
@@ -14,10 +21,14 @@ export interface JigStackProps extends JigBaseStackProps {
 export const AWS_GLOBAL_REGION = "us-east-1";
 export const CENTRAL_CONF_NAME = "central";
 
-export const AWS_TARGET = createWrittenLocation("AWS_TARGET");
-export const AWS_GLOBAL = createWrittenLocation("AWS_GLOBAL");
-export const AWS_CENTRAL = createWrittenLocation("AWS_CENTRAL");
-export const AWS_LOCAL = createWrittenLocation("AWS_LOCAL");
+// There can be as many WrittenLocation types as your system needs.
+// but think in terms of reuse. dev, staging, prod-us, and prod-eu are probably
+// all targets rather than separate locations. The configuration should happen
+// on the command line.
+export const AWS_TARGET = createWrittenLocation("AWS_TARGET"); // Target is usually the primary location or config of the thing being deployed.
+export const AWS_GLOBAL = createWrittenLocation("AWS_GLOBAL"); // Since us-east-1 is special in AWS there is often need for a target account but in the "global" us-east-1 region.
+export const AWS_CENTRAL = createWrittenLocation("AWS_CENTRAL"); // Often there are many services that are 1 of 1 within an organization. So a central account/region is common.
+export const AWS_LOCAL = createWrittenLocation("AWS_LOCAL"); // Local is wherever the thing being deployed right now is. It's used internally for shortcuts.
 
 export class Jig extends JigBase {
   public sources: { [key in WrittenLocation]: DependencySource };
@@ -27,7 +38,7 @@ export class Jig extends JigBase {
 
   constructor(name: string) {
     super();
-    // Load up the two key decorators from their config files
+    // Load up the two key decorators this app requires
     this.targetConf = Config.load(name);
     this.centralConf = Config.load(CENTRAL_CONF_NAME);
     // Create the sources for all the different locations we'll need
@@ -38,6 +49,7 @@ export class Jig extends JigBase {
     };
   }
 
+  // There is always a target. Everything belongs to something.
   public getTargetDecorator(): KeyDecorator {
     return this.targetConf;
   }
@@ -47,6 +59,8 @@ export class Jig extends JigBase {
   }
 
   // needed by cloudformation macros
+  // this is generally called long after the stack has begin processing and the
+  // localLocation property has been set.
   public getLocations(): { [key in WrittenLocation]: AwsLocation } {
     let locations = {
       [AWS_TARGET]: {
@@ -75,6 +89,9 @@ export class Jig extends JigBase {
     return locations;
   }
 
+  // It is not a requirement to have a method like this but it makes life a
+  // whole lot easier if you do. Every stack should have an env and if you're
+  // using this dependency system then every stack is gonna need your decorators.
   public stackProps(location: WrittenLocation): JigStackProps {
     this.localLocation = location;
 
