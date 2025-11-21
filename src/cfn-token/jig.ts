@@ -1,8 +1,8 @@
 import { JigBase, JigBaseStackProps } from "../../src/dependency/jig-base";
 import { KeyDecorator } from "../../src/dependency/key-decorator";
-import { AwsLocation, WrittenLocation, createWrittenLocation } from "../../src/dependency/source-location";
 import { AwsCliSource } from "../../src/dependency/source/aws-cli-source";
 import { DependencySource } from "../../src/dependency/source/dependency-source";
+import { AwsLocation, WrittenLocation, createWrittenLocation } from "../dependency/locations";
 import { Config } from "./config";
 
 export interface JigStackProps extends JigBaseStackProps {

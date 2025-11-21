@@ -1,7 +1,7 @@
 import { StackProps } from "aws-cdk-lib";
 import { DependencySource } from "../../src/dependency/source/dependency-source";
 import { KeyDecorator } from "./key-decorator";
-import { AwsLocation, WrittenLocation } from "./source-location";
+import { AwsLocation, WrittenLocation } from "./locations";
 
 // This should be extended to include things like your primary decorators,
 // This will usually be your configs.

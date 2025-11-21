@@ -2,9 +2,6 @@
 
 source bin/functions.sh
 
-# _echo_run "rm -rf node_modules"
-# _echo_run "npm ci"
-
 _echo_run "rm -rf dist/*"
 
 for CONF in central sigma; do

@@ -1,6 +1,6 @@
 import { Construct } from "constructs";
 import { KeyDecorator } from "./key-decorator";
-import { SourceLocation, WrittenLocation } from "./source-location";
+import { SourceLocation, WrittenLocation } from "./locations";
 import { DependencySource } from "./source/dependency-source";
 
 export interface Dependency {

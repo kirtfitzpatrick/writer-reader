@@ -3,7 +3,7 @@ import { Construct } from "constructs";
 import { join, kebabCase } from "lodash";
 import { Dependency, Reader, Writer } from "./dependency-interface";
 import { KeyDecorator } from "./key-decorator";
-import { WrittenLocation } from "./source-location";
+import { WrittenLocation } from "./locations";
 import { DependencySource } from "./source/dependency-source";
 
 export abstract class K8sConfigMapDependency implements Dependency {

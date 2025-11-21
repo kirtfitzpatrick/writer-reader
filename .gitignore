@@ -5,6 +5,7 @@ node_modules
 dist/
 cdk.out/
 tmp/
+templates/
 .envrc
 aws-sso-config
 cdk.context.json

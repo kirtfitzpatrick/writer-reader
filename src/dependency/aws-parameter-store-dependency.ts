@@ -8,7 +8,7 @@ import { FgGray, FgIn, Reset } from "../lib/colors";
 import { Dependency, Reader, Writer } from "./dependency-interface";
 import { JigBaseStackProps } from "./jig-base";
 import { KeyDecorator } from "./key-decorator";
-import { AwsLocation, WrittenLocation } from "./source-location";
+import { AwsLocation, WrittenLocation } from "./locations";
 import { DependencySource } from "./source/dependency-source";
 
 export abstract class AwsParameterStoreDependency implements Dependency {

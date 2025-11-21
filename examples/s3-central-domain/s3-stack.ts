@@ -3,6 +3,7 @@ import { BlockPublicAccess, Bucket } from "aws-cdk-lib/aws-s3";
 import { BucketDeployment, Source } from "aws-cdk-lib/aws-s3-deployment";
 import { Construct } from "constructs";
 import { cloneDeep } from "lodash";
+import { join } from "path";
 import { AwsParameterStoreStringWriter } from "../../src/dependency/aws-parameter-store-dependency";
 import { ConfigKeyDecorator } from "./config";
 import { FULL_DOMAIN } from "./domain-stack";
@@ -20,7 +21,6 @@ export class S3Stack extends Stack {
 
     const bucket = new Bucket(this, "Bucket", {
       versioned: true,
-      // bucketName: cfnLabel(props.targetConf.name, FULL_DOMAIN),
       bucketName: FULL_DOMAIN, // needed for auto routing under custom domain
       websiteIndexDocument: "index.html",
       publicReadAccess: true,
@@ -30,7 +30,7 @@ export class S3Stack extends Stack {
     });
 
     new BucketDeployment(this, "BucketDeployment", {
-      sources: [Source.asset("./assets")],
+      sources: [Source.asset(join(__dirname, "assets"))],
       destinationBucket: bucket,
       prune: false,
     });
