@@ -2,7 +2,7 @@ import { CfnParameter } from "aws-cdk-lib";
 import { StringParameter } from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
 import { join, kebabCase } from "lodash";
-import { AWS_LOCAL } from "../../examples/cdn-and-domain/jig";
+import { AWS_LOCAL } from "../../examples/s3-central-domain/jig";
 import { MacroStack } from "../cfn-token/macro-stack";
 import { FgGray, FgIn, Reset } from "../lib/colors";
 import { Dependency, Reader, Writer } from "./dependency-interface";
