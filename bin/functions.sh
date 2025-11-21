@@ -13,3 +13,13 @@ function _echo_run {
   _echo_cmd "${CMD}"
   eval "${CMD}"
 }
+
+function _say {
+  if [[ -v QUIET ]]; then
+    echo "Say: $*"
+  elif command -v say &>/dev/null; then
+    say $*
+  fi
+
+  return 0
+}

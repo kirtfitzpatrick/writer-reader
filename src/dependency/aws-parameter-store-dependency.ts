@@ -2,10 +2,11 @@ import { CfnParameter } from "aws-cdk-lib";
 import { StringParameter } from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
 import { join, kebabCase } from "lodash";
+import { AWS_LOCAL } from "../../examples/cdn-and-domain/jig";
 import { MacroStack } from "../cfn-token/macro-stack";
 import { FgGray, FgIn, Reset } from "../lib/colors";
 import { Dependency, Reader, Writer } from "./dependency-interface";
-import { AWS_LOCAL, JigStackProps } from "./jig";
+import { JigBaseStackProps } from "./jig-base";
 import { KeyDecorator } from "./key-decorator";
 import { AwsLocation, WrittenLocation } from "./source-location";
 import { DependencySource } from "./source/dependency-source";
@@ -80,18 +81,18 @@ export class AwsParameterStoreStringReader extends AwsParameterStoreDependency i
     return this._value;
   }
 
-  public tokenize(scope: Construct, props: JigStackProps): string {
+  public tokenize(scope: Construct, props: JigBaseStackProps): string {
     if (this.writerLocation === props.jig.localLocation) {
       // CfnParameter
-      return this.paramStoreCfnToken(scope, props.targetConf);
+      return this.paramStoreCfnToken(scope, props.jig.getTargetDecorator());
     } else {
       // Fn::Transform / Macro
-      return this.paramStoreTransformToken(props.targetConf, props.jig.getLocations());
+      return this.paramStoreTransformToken(props.jig.getTargetDecorator(), props.jig.getLocations());
     }
   }
 
-  public paramStoreCfnToken(scope: Construct, keyMaster: KeyDecorator): string {
-    const keyName = this.getKeyName(keyMaster);
+  public paramStoreCfnToken(scope: Construct, decorator: KeyDecorator): string {
+    const keyName = this.getKeyName(decorator);
 
     const cfnParam = new CfnParameter(scope, join(keyName, "CfnParameter"), {
       type: "AWS::SSM::Parameter::Value<String>",

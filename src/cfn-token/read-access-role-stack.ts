@@ -1,9 +1,9 @@
 import { Stack } from "aws-cdk-lib";
 import { ArnPrincipal, PolicyDocument, PolicyStatement, Role } from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
-import { JigStackProps } from "../dependency/jig";
 import { cfnLabel } from "../lib/labels";
 import { AssumeRoleStack } from "./assume-role-stack";
+import { JigStackProps } from "./jig";
 import { CfnTokenLocations } from "./macro-stack";
 
 export interface ReadAccessRoleStackProps extends JigStackProps, CfnTokenLocations {}

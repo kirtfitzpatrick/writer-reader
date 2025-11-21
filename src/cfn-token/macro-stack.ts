@@ -3,10 +3,10 @@ import { Role } from "aws-cdk-lib/aws-iam";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
-import { JigStackProps } from "../dependency/jig";
 import { AwsLocation } from "../dependency/source-location";
 import { cfnLabel } from "../lib/labels";
 import { AssumeRoleStack } from "./assume-role-stack";
+import { JigStackProps } from "./jig";
 import { MacroEventParams } from "./macro";
 import { ReadAccessRoleStack } from "./read-access-role-stack";
 

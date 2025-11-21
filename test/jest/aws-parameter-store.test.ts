@@ -1,5 +1,5 @@
 import { DescribeStacksCommand } from "@aws-sdk/client-cloudformation";
-import { App, Stack, StackProps } from "aws-cdk-lib";
+import { App, Stack } from "aws-cdk-lib";
 import { StringParameter } from "aws-cdk-lib/aws-ssm";
 import { cloneDeep } from "lodash";
 import {
@@ -8,54 +8,48 @@ import {
 } from "../../src/dependency/aws-parameter-store-dependency";
 import { cfnClient, deleteStack, deployTemplate, getAwsProfileCredentials } from "../lib/aws-functions";
 import { ConfigKeyDecorator } from "../lib/config";
-import { AwsCentralLocation, CENTRAL, Jig, TARGET } from "../lib/jig";
+import { AWS_CENTRAL, AWS_TARGET, Jig, JigStackProps } from "../lib/jig";
 /**
  * - two stacks both part of the sigma app so all labels reflect this.
  * - one stack needs to be deployed to the central account and the other to sigma
  * - the sigma stack needs information from the central stack
- * - so the central account stores this info in a properly named parameter
+ * - so the central account stores this info in a properly named parameter by means of a writer dependency
+ * - the sigma stack retrieves this info by means of a reader dependency
  */
+
+const WRITTEN_VALUE = "I am the string you seek";
 
 /**
  * Writer Stack - deployed to central location
  */
-export interface AwsParameterStoreWriterStackProps extends StackProps {
-  jig: Jig;
-}
-
 export const AwsParameterStoreWriterStackWriters = {
   awsParameterStoreString: new AwsParameterStoreStringWriter(["parameter-store-string"], ConfigKeyDecorator),
 } as const;
 
 export class AwsParameterStoreWriterStack extends Stack {
-  constructor(app: App, id: string, props: AwsParameterStoreWriterStackProps) {
+  constructor(app: App, id: string, props: JigStackProps) {
     super(app, id);
     const writers = cloneDeep(AwsParameterStoreWriterStackWriters);
-    writers.awsParameterStoreString.value = "I am the string you seek";
-    writers.awsParameterStoreString.dehydrate(this, props.jig.getKeyDecorator(TARGET));
+    writers.awsParameterStoreString.value = WRITTEN_VALUE;
+    writers.awsParameterStoreString.dehydrate(this, props.targetConf);
   }
 }
 
 /**
  * Reader Stack - deployed to target location
  */
-
-interface AwsParameterStoreReaderStackProps extends StackProps {
-  jig: Jig;
-}
-
 export const AwsParameterStoreReaderStackReaders = {
   awsParameterStoreString: new AwsParameterStoreStringReader(
     AwsParameterStoreWriterStackWriters.awsParameterStoreString,
-    AwsCentralLocation
+    AWS_CENTRAL
   ),
 } as const;
 
 export class AwsParameterStoreReaderStack extends Stack {
-  constructor(app: App, id: string, props: AwsParameterStoreReaderStackProps) {
+  constructor(app: App, id: string, props: JigStackProps) {
     super(app, id);
     const readers = cloneDeep(AwsParameterStoreReaderStackReaders);
-    readers.awsParameterStoreString.fetch(props.jig.getKeyDecorator(TARGET), props.jig.sources);
+    readers.awsParameterStoreString.fetch(props.targetConf, props.jig.sources);
 
     new StringParameter(this, "retrieved-value", {
       parameterName: "retrieved-value",
@@ -74,7 +68,7 @@ jest.setTimeout(60_000);
 
 const jig = new Jig("sigma");
 
-const centralConf = jig.decorators[CENTRAL];
+const centralConf = jig.centralConf;
 const writerCreds = getAwsProfileCredentials(centralConf.profile);
 const writerCfn = cfnClient(
   writerCreds.accessKeyId,
@@ -82,7 +76,7 @@ const writerCfn = cfnClient(
   writerCreds.sessionToken,
   centralConf.region
 );
-const targetConf = jig.decorators[TARGET];
+const targetConf = jig.targetConf;
 const readerCreds = getAwsProfileCredentials(targetConf.profile);
 const readerCfn = cfnClient(
   readerCreds.accessKeyId,
@@ -102,16 +96,14 @@ describe("Retrieve param store string from one stack to use somewhere else", () 
   it("synthesizes and deploys to an AWS account", async () => {
     // First deploy the writer stack in the central account
     const writerApp = new App();
-    const writerStack = new AwsParameterStoreWriterStack(writerApp, writerStackName, {
-      env: { account: centralConf.account, region: centralConf.region }, // these aren't used since we bypass cdk for tests and instead use the CfnClient connection
-      jig: jig,
-    });
+    const writerStack = new AwsParameterStoreWriterStack(writerApp, writerStackName, jig.stackProps(AWS_CENTRAL));
     const writerAssembly = writerApp.synth();
     const writerArtifact = writerAssembly.getStackArtifact(writerStack.artifactId);
     const writerTemplate = writerArtifact.template;
     const writerStrTemplate = JSON.stringify(writerTemplate);
     expect(writerStrTemplate).toMatch(/sigma-parameter-store-string/);
-    expect(writerStrTemplate).toMatch(/I am the string you seek/);
+    // expect(writerStrTemplate).toMatch(/I am the string you seek/);
+    expect(writerStrTemplate).toMatch(/${WRITTEN_VALUE}/);
 
     await deployTemplate(writerCfn, writerStackName, writerTemplate);
     const writerResult = await writerCfn.send(new DescribeStacksCommand({ StackName: writerStackName }));
@@ -120,15 +112,12 @@ describe("Retrieve param store string from one stack to use somewhere else", () 
 
     // Now deploy the reader stack in the target account
     const readerApp = new App();
-    const readerStack = new AwsParameterStoreReaderStack(readerApp, readerStackName, {
-      env: { account: targetConf.account, region: targetConf.region }, // these aren't used since we bypass cdk for tests and instead use the CfnClient connection
-      jig: jig,
-    });
+    const readerStack = new AwsParameterStoreReaderStack(readerApp, readerStackName, jig.stackProps(AWS_TARGET));
     const readerAssembly = readerApp.synth();
     const readerArtifact = readerAssembly.getStackArtifact(readerStack.artifactId);
     const readerTemplate = readerArtifact.template;
     const readerStrTemplate = JSON.stringify(readerTemplate);
-    expect(readerStrTemplate).toMatch(/I am the string you seek/);
+    expect(readerStrTemplate).toMatch(/${WRITTEN_VALUE}/);
 
     await deployTemplate(readerCfn, readerStackName, readerArtifact.template);
     const readerResult = await readerCfn.send(new DescribeStacksCommand({ StackName: readerStackName }));

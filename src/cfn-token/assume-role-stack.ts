@@ -1,12 +1,12 @@
 import { Stack } from "aws-cdk-lib";
 import { PolicyDocument, PolicyStatement, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
-import { JigStackProps } from "../dependency/jig";
+import { JigBaseStackProps } from "../dependency/jig-base";
 import { cfnLabel } from "../lib/labels";
 import { CfnTokenLocations } from "./macro-stack";
 import { ReadAccessRoleStack } from "./read-access-role-stack";
 
-export interface AssumeRoleStackProps extends JigStackProps, CfnTokenLocations {}
+export interface AssumeRoleStackProps extends JigBaseStackProps, CfnTokenLocations {}
 
 export class AssumeRoleStack extends Stack {
   // "AWS":"arn:aws:iam::240855652656:role/SigmaCentralFlexDepLambdaRole"

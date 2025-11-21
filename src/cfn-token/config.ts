@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 import { join, kebabCase } from "lodash";
 import { parse } from "yaml";
-import { KeyDecorator } from "../../src/dependency/key-decorator";
+import { KeyDecorator } from "../dependency/key-decorator";
 
 export class Config implements KeyDecorator {
   static load(name: string): Config {

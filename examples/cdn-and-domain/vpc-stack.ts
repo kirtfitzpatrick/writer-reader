@@ -3,8 +3,8 @@ import { IpAddresses, Vpc } from "aws-cdk-lib/aws-ec2";
 import { Construct } from "constructs";
 import { cloneDeep } from "lodash";
 import { AwsParameterStoreStringWriter } from "../../src/dependency/aws-parameter-store-dependency";
-import { JigStackProps } from "../../src/dependency/jig";
 import { ConfigKeyDecorator } from "./config";
+import { JigStackProps } from "./jig";
 
 export const VpcStackWriters = {
   vpcId: new AwsParameterStoreStringWriter(["vpc-id"], ConfigKeyDecorator),

@@ -1,19 +1,19 @@
 import { readFileSync } from "fs";
 import { join, kebabCase } from "lodash";
+import { join as joinPath } from "path";
 import { parse } from "yaml";
 import { KeyDecorator } from "../../src/dependency/key-decorator";
 
 export class Config implements KeyDecorator {
   static load(name: string): Config {
-    const conf = parse(readFileSync(`test/conf/${name}.yaml`, "utf8"));
-    return new Config(conf.name, conf.context, conf.namespace, conf.profile, conf.account, conf.region);
+    const confPath = joinPath(__dirname, "conf", `${name}.yaml`);
+    const conf = parse(readFileSync(confPath, "utf8"));
+
+    return new Config(conf.name, conf.profile, conf.account, conf.region);
   }
 
   constructor(
-    public readonly name: string, //
-    // k8s cli source properties
-    public readonly context: string,
-    public readonly namespace: string,
+    public readonly name: string, // environment name or whatever
     // AWS CLI source properties
     public readonly profile: string,
     public readonly account: string,

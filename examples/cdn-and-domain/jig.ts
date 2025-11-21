@@ -3,7 +3,6 @@ import { KeyDecorator } from "../../src/dependency/key-decorator";
 import { AwsLocation, WrittenLocation, createWrittenLocation } from "../../src/dependency/source-location";
 import { AwsCliSource } from "../../src/dependency/source/aws-cli-source";
 import { DependencySource } from "../../src/dependency/source/dependency-source";
-import { KubectlSource } from "../../src/dependency/source/kubectl-source";
 import { Config } from "./config";
 
 export interface JigStackProps extends JigBaseStackProps {
@@ -15,8 +14,6 @@ export interface JigStackProps extends JigBaseStackProps {
 export const AWS_GLOBAL_REGION = "us-east-1";
 export const CENTRAL_CONF_NAME = "central";
 
-export const K8S_TARGET = createWrittenLocation("K8S_TARGET");
-export const K8S_CENTRAL = createWrittenLocation("K8S_CENTRAL");
 export const AWS_TARGET = createWrittenLocation("AWS_TARGET");
 export const AWS_GLOBAL = createWrittenLocation("AWS_GLOBAL");
 export const AWS_CENTRAL = createWrittenLocation("AWS_CENTRAL");
@@ -35,8 +32,6 @@ export class Jig extends JigBase {
     this.centralConf = Config.load(CENTRAL_CONF_NAME);
     // Create the sources for all the different locations we'll need
     this.sources = {
-      [K8S_TARGET]: new KubectlSource(this.targetConf.namespace, this.targetConf.context),
-      [K8S_CENTRAL]: new KubectlSource(this.centralConf.namespace, this.centralConf.context),
       [AWS_TARGET]: new AwsCliSource(this.targetConf.profile, this.targetConf.region, { debug: true }),
       [AWS_GLOBAL]: new AwsCliSource(this.targetConf.profile, AWS_GLOBAL_REGION, { debug: true }),
       [AWS_CENTRAL]: new AwsCliSource(this.centralConf.profile, this.centralConf.region, { debug: true }),

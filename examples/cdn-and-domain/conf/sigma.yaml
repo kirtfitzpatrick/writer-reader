@@ -1,6 +1,4 @@
 name: sigma
-context: k3d-sigma
-namespace: sigma
 profile: 668318664362_AdministratorAccess
 account: 668318664362
 region: us-west-2

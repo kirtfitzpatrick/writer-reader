@@ -1,8 +1,8 @@
 import { Stack, StackProps, Stage } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { AWS_GLOBAL, AWS_TARGET, Jig } from "../dependency/jig";
 import { cfnLabel } from "../lib/labels";
 import { AssumeRoleStack } from "./assume-role-stack";
+import { AWS_GLOBAL, AWS_WRITER, Jig } from "./jig";
 import { CfnTokenLocations, MacroStack } from "./macro-stack";
 import { ReadAccessRoleStack } from "./read-access-role-stack";
 
@@ -20,8 +20,8 @@ export class CfnMacrosStage extends Stage {
   }
 
   public static oneWayStacks(scope: Construct, props: CfnMacrosStageProps): { [key: string]: Stack } {
-    const writingJig = new Jig(props.writingLocation.envName);
-    const readingJig = new Jig(props.readingLocation.envName);
+    const writingJig = new Jig(props.writingLocation.envName, props.readingLocation.envName);
+    const readingJig = new Jig(props.readingLocation.envName, props.writingLocation.envName);
     const prefix = props.prefix ?? CfnMacrosStage.oneWayName(props);
     let lastStacks: { [key: string]: Stack } = {};
 
@@ -37,7 +37,7 @@ export class CfnMacrosStage extends Stage {
     });
     readRoleStack.addDependency(assumeRoleStack);
     const macroStack = new MacroStack(scope, cfnLabel(prefix, "MacroStack", props.readingLocation.region), {
-      ...readingJig.stackProps(AWS_TARGET),
+      ...readingJig.stackProps(AWS_WRITER),
       writingLocation: props.writingLocation,
       readingLocation: props.readingLocation,
     });
