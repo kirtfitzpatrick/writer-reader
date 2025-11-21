@@ -84,7 +84,7 @@ export class VpcStack extends Stack {
     /**
      * dehydrate creates the Parameter Store StringParameter construct as part
      * of this stack's scope. It names it automatically by calling the
-     * "EnvironmentKeyDecorator" it was created with which is just a method
+     * KeyDecorator it was created with which is just a method
      * prototype that exists on the targetConf object below. By specifying
      * decorator prototypes in this way it allows you to have multiple decorators
      * on a single class that implements the KeyDecorator interface, in this case
@@ -113,6 +113,10 @@ export const EksStackReaders = {
   vpcId: new AwsParameterStoreStringReader(VpcStackWriters.vpcId, AWS_TARGET),
 } as const;
 
+/**
+ * This is a bad example because Eks deploys to the same account and region as
+ * the VPC. See the examples directory for something more clever.
+ */
 export class EksClusterStack extends Stack {
   constructor(scope: Construct, id: string, props: JigStackProps) {
     super(scope, id, props);
@@ -141,3 +145,7 @@ export class EksClusterStack extends Stack {
   }
 }
 ```
+
+## Cfn Token System
+
+This

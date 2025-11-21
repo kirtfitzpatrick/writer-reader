@@ -7,3 +7,4 @@ cdk.out/
 tmp/
 .envrc
 aws-sso-config
+cdk.context.json

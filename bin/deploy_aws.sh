@@ -23,7 +23,7 @@ CDK_CMD=$3
 REST=("${@:4}")
 
 APP_STR="npx ts-node --prefer-ts-exts "${APP_FILE_NAME}" ${CONF_NAME}"
-PASS_THROUGH_PARAMS="${CDK_CMD} ${REST[*]} -o dist"
+PASS_THROUGH_PARAMS="${CDK_CMD} ${REST[*]} -o templates"
 
 
 echo "App File: ${APP_FILE_NAME}"

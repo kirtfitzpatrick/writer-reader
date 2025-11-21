@@ -1,15 +1,40 @@
 {
   "name": "writer-reader",
   "version": "1.0.0",
-  "main": "main.js",
-  "types": "main.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "license": "Apache-2.0",
   "private": true,
+  "bin": {
+    "deploy_aws.sh": "./bin/deploy_aws.sh",
+    "functions.sh": "./bin/functions.sh"
+  },
+  "engines": {
+    "node": ">=24.11.1",
+    "npm": ">=11.6.3"
+  },
   "scripts": {
+    "prebuild": "./bin/gen-index.sh",
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest"
   },
+  "keywords": [
+    "aws",
+    "k8s",
+    "kubernetes",
+    "cdk",
+    "cdk8s",
+    "construct",
+    "typescript",
+    "dependency",
+    "writer",
+    "reader",
+    "secret",
+    "parameter",
+    "key",
+    "value"
+  ],
   "dependencies": {
     "@aws-sdk/client-ssm": "^3.934.0",
     "@aws-sdk/client-sts": "^3.934.0",
