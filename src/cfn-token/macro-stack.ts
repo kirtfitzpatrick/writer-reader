@@ -58,7 +58,7 @@ export class MacroStack extends Stack {
       entry: "src/cfn-token/macro.ts",
       handler: "handler",
       role: Role.fromRoleArn(this, "Role", AssumeRoleStack.roleArn(props)),
-      runtime: Runtime.NODEJS_18_X,
+      runtime: Runtime.NODEJS_22_X,
     });
     new CfnMacro(this, "Macro", {
       functionName: MacroStack.lambdaArn(this, props),
