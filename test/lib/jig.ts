@@ -1,4 +1,4 @@
-import { JigBase, JigBaseStackProps } from "../../src/dependency/jig-base";
+import { AWS_LOCAL, JigBase, JigBaseStackProps } from "../../src/dependency/jig-base";
 import { KeyDecorator } from "../../src/dependency/key-decorator";
 import { AwsLocation, WrittenLocation, createWrittenLocation } from "../../src/dependency/locations";
 import { AwsCliSource } from "../../src/dependency/source/aws-cli-source";
@@ -20,7 +20,6 @@ export const K8S_CENTRAL = createWrittenLocation("K8S_CENTRAL");
 export const AWS_TARGET = createWrittenLocation("AWS_TARGET");
 export const AWS_GLOBAL = createWrittenLocation("AWS_GLOBAL");
 export const AWS_CENTRAL = createWrittenLocation("AWS_CENTRAL");
-export const AWS_LOCAL = createWrittenLocation("AWS_LOCAL");
 
 export class Jig extends JigBase {
   public sources: { [key in WrittenLocation]: DependencySource };

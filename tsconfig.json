@@ -23,6 +23,6 @@
     "stripInternal": true,
     "target": "ES2018"
   },
-  "include": ["src", "test", "tmp/flex-dep-functions.ts", "examples/s3-central-domain/jig.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src", "imports"],
+  "exclude": ["node_modules", "tmp", "test", "examples"]
 }

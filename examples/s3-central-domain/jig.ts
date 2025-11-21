@@ -1,4 +1,4 @@
-import { JigBase, JigBaseStackProps } from "../../src/dependency/jig-base";
+import { AWS_LOCAL, JigBase, JigBaseStackProps } from "../../src/dependency/jig-base";
 import { KeyDecorator } from "../../src/dependency/key-decorator";
 import { AwsLocation, WrittenLocation, createWrittenLocation } from "../../src/dependency/locations";
 import { AwsCliSource } from "../../src/dependency/source/aws-cli-source";
@@ -28,7 +28,6 @@ export const CENTRAL_CONF_NAME = "central";
 export const AWS_TARGET = createWrittenLocation("AWS_TARGET"); // Target is usually the primary location or config of the thing being deployed.
 export const AWS_GLOBAL = createWrittenLocation("AWS_GLOBAL"); // Since us-east-1 is special in AWS there is often need for a target account but in the "global" us-east-1 region.
 export const AWS_CENTRAL = createWrittenLocation("AWS_CENTRAL"); // Often there are many services that are 1 of 1 within an organization. So a central account/region is common.
-export const AWS_LOCAL = createWrittenLocation("AWS_LOCAL"); // Local is wherever the thing being deployed right now is. It's used internally for shortcuts.
 
 export class Jig extends JigBase {
   public sources: { [key in WrittenLocation]: DependencySource };

@@ -1,6 +1,6 @@
 import { Construct } from "constructs";
 import { KeyDecorator } from "./key-decorator";
-import { SourceLocation, WrittenLocation } from "./locations";
+import { WrittenLocation } from "./locations";
 import { DependencySource } from "./source/dependency-source";
 
 export interface Dependency {
@@ -17,5 +17,5 @@ export interface Reader extends Dependency {
   writer: Writer;
   writerLocation: WrittenLocation;
   get value(): any;
-  fetch(keyDecorator: KeyDecorator, sources: { [key in SourceLocation]: DependencySource }): any;
+  fetch(keyDecorator: KeyDecorator, sources: { [key in WrittenLocation]: DependencySource }): any;
 }

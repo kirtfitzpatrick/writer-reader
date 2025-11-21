@@ -1,4 +1,4 @@
-import { JigBase, JigBaseStackProps } from "../../src/dependency/jig-base";
+import { AWS_LOCAL, JigBase, JigBaseStackProps } from "../../src/dependency/jig-base";
 import { KeyDecorator } from "../../src/dependency/key-decorator";
 import { AwsCliSource } from "../../src/dependency/source/aws-cli-source";
 import { DependencySource } from "../../src/dependency/source/dependency-source";
@@ -16,7 +16,6 @@ export const AWS_GLOBAL_REGION = "us-east-1";
 export const AWS_WRITER = createWrittenLocation("AWS_WRITER");
 export const AWS_GLOBAL = createWrittenLocation("AWS_GLOBAL");
 export const AWS_READER = createWrittenLocation("AWS_READER");
-export const AWS_LOCAL = createWrittenLocation("AWS_LOCAL");
 
 export class Jig extends JigBase {
   public sources: { [key in WrittenLocation]: DependencySource };

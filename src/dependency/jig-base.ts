@@ -1,21 +1,31 @@
 import { StackProps } from "aws-cdk-lib";
 import { DependencySource } from "../../src/dependency/source/dependency-source";
 import { KeyDecorator } from "./key-decorator";
-import { AwsLocation, WrittenLocation } from "./locations";
+import { AwsLocation, WrittenLocation, createWrittenLocation } from "./locations";
 
-// This should be extended to include things like your primary decorators,
-// This will usually be your configs.
+/**
+ * This should be extended to include things like your primary decorators,
+ * This will usually be your configs.
+ */
 export interface JigBaseStackProps extends StackProps {
   jig: JigBase;
 }
+
+/**
+ * Local is wherever the thing being deployed right now is.
+ * It's used internally for shortcuts and the cloudformation macros.
+ */
+export const AWS_LOCAL = createWrittenLocation("AWS_LOCAL");
 
 export abstract class JigBase {
   public sources: { [key in WrittenLocation]: DependencySource };
   public localLocation: WrittenLocation;
 
-  // Everything has a target that represents the primary label this thing
-  // belongs to, even if it lives in a different location. This could be a
-  // client, environment, platform, etc.
+  /**
+   * Everything has a target that represents the primary label this thing
+   * belongs to, even if it lives in a different location. This could be a
+   * client, environment, platform, etc.
+   */
   abstract getTargetDecorator(): KeyDecorator;
 
   // all the command line sources for the locations you keep dependencies in
