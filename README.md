@@ -148,7 +148,30 @@ export class EksClusterStack extends Stack {
 
 ## Cfn Token System
 
-This
+To make use of the deploy time resolving CloudFormation transforms you'll need
+to pre deploy some stacks into your accounts. It's built into the package and
+the stacks are setup in a one-way orientation. To have one account read from
+another you'll have to deploy one set of stacks. To have them both read from
+each other you'll need to include the reverse as well. They're namespaced pretty
+well so you should be fine even in complex systems.
+
+To simplify things the `writer-reader` package includes a `cfn-tokens.sh` script.
+exec without arguments for help.
+At present time it expects a `conf` directory at the root of the project
+containing yaml files which in turn contain the aws profile, account number,
+and region.
+
+If the region of an environment is not `us-east-1` the cdk app will also deploy
+stacks to the `us-east-1` region because that's a thing in AWS. Some services
+only exist there.
+
+Review the CloudFormation macro stacks with the following command.
+
+```bash
+npx cfn-tokens.sh central sigma list
+npx cfn-tokens.sh central sigma diff 'central/*'
+npx cfn-tokens.sh central sigma deploy 'central/*'
+```
 
 ## Local Testing
 
