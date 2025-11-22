@@ -8,27 +8,29 @@ stores are:
 - k8s Config Map
 - k8s Secret
 
-What this allows you to do is to label and store vital info like a VPC ID or
-CloudFront Distribution ID, ARNs, secret credentials, and so on that were
-created by one stack or chart in one location, such as a production account
-in eu-west-1, and then retrieve that information to be used in an AWS stack or
-Kubernetes chart in a different location, such as a central account in us-east-1
-or an EKS cluster.
+What this allows you to do is to label and store vital info like a IDs, ARNs,
+secret credentials, and so on that were created by one AWS stack or k8s chart
+in one location and needed by another stack or Kubernetes chart somewhere else.
+It's dependencies simplified, cross account, cross region, and cross platform.
 
-It works across AWS accounts and regions and with the CfnToken system it can
-resolve the dependencies at deploy time by CloudFormation which allows you to
-put complex dependencies within the same CDK app with stacks all deploying and
-relying on each other in different accounts and regions.
+This opens up and streamlines code organization allowing you to scale infra
+codebases while also integrating construct based toolkits in a far more
+productive manner.
 
-This takes care of accurately labeling the dependencies with the KeyDecorator
-system and it takes care of knowing where to go to fetch the dependency through
+With the CfnToken system it can resolve the AWS native dependencies at deploy
+time by CloudFormation which allows you to put complex dependencies within the
+same CDK app with stacks all deploying and relying on each other in different
+accounts and regions and it sorts out the complexity for you.
+
+This handles accurately labeling dependencies through the KeyDecorator
+system and it handles knowing where to fetch the dependency through
 the WrittenLocation system.
 
 It can also be used to export dependencies via npm for use by other codebases.
-For example you could have a company wide platform that exports many of the
-things needed by smaller apps such as VPC ID, and then developers could import
-them into their app via npm install and use them via a Reader. And it will
-all be strongly typed all the way through from the app to the platform.
+For example you could have a company wide platform that exports much of the
+information needed by smaller apps such as VPC ID, and then developers can
+import the Writers they need into their app via npm and use them via a Reader.
+And it will be strongly typed all the way through from the app to the platform.
 
 ## Jigs
 
