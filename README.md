@@ -168,6 +168,11 @@ only exist there.
 Review the CloudFormation macro stacks with the following command.
 
 ```bash
+npx cfn-tokens.sh
+Usage:
+  .../cfn-tokens.sh WRITER_CONFIG READER_CONFIG CDK_CMD [CDK_OPTIONS...]
+
+
 npx cfn-tokens.sh central sigma list
 npx cfn-tokens.sh central sigma diff 'central/*'
 npx cfn-tokens.sh central sigma deploy 'central/*'
