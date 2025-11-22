@@ -3,8 +3,10 @@
 source bin/functions.sh
 
 _echo_run "rm -rf dist/*"
+_echo_run "rm -rf templates/*"
 
-for CONF in central sigma; do
-  _echo_run "k3d cluster delete ${CONF}"
-  _echo_run "k3d cluster create ${CONF}"
-done
+
+# for CONF in central sigma; do
+#   _echo_run "k3d cluster delete ${CONF}"
+#   _echo_run "k3d cluster create ${CONF}"
+# done

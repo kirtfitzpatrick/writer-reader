@@ -1,15 +1,12 @@
 import { execSync } from "child_process";
 import { FgBlue, FgGray, Reset } from "../../lib/colors";
+import { debugLog } from "../../lib/log";
 import { DependencySource } from "./dependency-source";
 
 export class AwsCliSource implements DependencySource {
   protected silent: boolean = false; // TODO: not needed anymore. logDebug handles it with DEBUG env var
 
-  constructor(protected profile: string, protected region: string, props?: any) {
-    if (props && props.debug !== undefined) {
-      this.silent = !props.debug;
-    }
-  }
+  constructor(protected profile: string, protected region: string) {}
 
   public getString(key: string): string {
     let responseObj;
@@ -54,14 +51,10 @@ export class AwsCliSource implements DependencySource {
   }
 
   protected debugCmd(msg: string): void {
-    if (!this.silent) {
-      console.log("    " + FgBlue + msg + Reset);
-    }
+    debugLog("    " + FgBlue + msg + Reset);
   }
 
   protected debugResponse(msg: string): void {
-    if (!this.silent) {
-      console.log("      " + FgGray + msg + Reset);
-    }
+    debugLog("      " + FgGray + msg + Reset);
   }
 }

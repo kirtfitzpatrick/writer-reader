@@ -1,11 +1,13 @@
 import { App, Stage } from "aws-cdk-lib";
+import { debugLog } from "../lib/log";
 import { CfnMacrosStage } from "./cfn-macros-stage";
 import { Jig } from "./jig";
 
 export class CfnMacrosApp {
   constructor(writer: string, reader: string) {
+    debugLog(process.argv);
     const jig = new Jig(writer, reader);
-    console.log(jig);
+    debugLog(jig);
     const writerConf = jig.writerConf;
     const readerConf = jig.readerConf;
     const app = new App();

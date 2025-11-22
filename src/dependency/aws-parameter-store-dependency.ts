@@ -4,6 +4,7 @@ import { Construct } from "constructs";
 import { join, kebabCase } from "lodash";
 import { MacroStack } from "../cfn-token/macro-stack";
 import { FgGray, FgIn, Reset } from "../lib/colors";
+import { debugLog } from "../lib/log";
 import { Dependency, Reader, Writer } from "./dependency-interface";
 import { AWS_LOCAL, JigBaseStackProps } from "./jig-base";
 import { KeyDecorator } from "./key-decorator";
@@ -98,7 +99,7 @@ export class AwsParameterStoreStringReader extends AwsParameterStoreDependency i
       default: keyName,
     });
 
-    console.log(`    ${FgIn}paramStoreCfnToken:${FgGray} ${keyName}, ${cfnParam.valueAsString}${Reset}`);
+    debugLog(`    ${FgIn}paramStoreCfnToken:${FgGray} ${keyName}, ${cfnParam.valueAsString}${Reset}`);
 
     return cfnParam.valueAsString;
   }
@@ -110,7 +111,7 @@ export class AwsParameterStoreStringReader extends AwsParameterStoreDependency i
     const parameterStoreKey = this.getKeyName(decorator);
     const writerLocation = locations[this.writerLocation];
 
-    console.log(
+    debugLog(
       `    ${FgIn}paramStoreTransformToken:${FgGray} ${parameterStoreKey}, account: ${writerLocation.account}, region: ${writerLocation.region}${Reset}`
     );
 

@@ -42,9 +42,9 @@ export class Jig extends JigBase {
     this.centralConf = Config.load(CENTRAL_CONF_NAME);
     // Create the sources for all the different locations we'll need
     this.sources = {
-      [AWS_TARGET]: new AwsCliSource(this.targetConf.profile, this.targetConf.region, { debug: true }),
-      [AWS_GLOBAL]: new AwsCliSource(this.targetConf.profile, AWS_GLOBAL_REGION, { debug: true }),
-      [AWS_CENTRAL]: new AwsCliSource(this.centralConf.profile, this.centralConf.region, { debug: true }),
+      [AWS_TARGET]: new AwsCliSource(this.targetConf.profile, this.targetConf.region),
+      [AWS_GLOBAL]: new AwsCliSource(this.targetConf.profile, AWS_GLOBAL_REGION),
+      [AWS_CENTRAL]: new AwsCliSource(this.centralConf.profile, this.centralConf.region),
     };
   }
 

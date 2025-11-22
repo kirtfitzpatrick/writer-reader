@@ -16,9 +16,9 @@ export class MultiAccountAndRegionApp {
     const app = new App();
     const jig = new Jig(envName);
 
-    const vpcStack = new VpcStack(app, "VpcStack", jig.stackProps(AWS_TARGET));
-    const s3Stack = new S3Stack(app, "S3Stack", jig.stackProps(AWS_TARGET));
-    const domainStack = new DomainStack(app, "DomainStack", jig.stackProps(AWS_CENTRAL));
+    const vpcStack = new VpcStack(app, jig.targetConf.stackName("VpcStack"), jig.stackProps(AWS_TARGET));
+    const s3Stack = new S3Stack(app, jig.targetConf.stackName("S3Stack"), jig.stackProps(AWS_TARGET));
+    const domainStack = new DomainStack(app, jig.targetConf.stackName("DomainStack"), jig.stackProps(AWS_CENTRAL));
     domainStack.addDependency(s3Stack); // Domain Stack depends on S3 Stack
   }
 }

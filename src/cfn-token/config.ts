@@ -3,9 +3,11 @@ import { join, kebabCase } from "lodash";
 import { parse } from "yaml";
 import { KeyDecorator } from "../dependency/key-decorator";
 
+const CONFIG_DIR = "conf";
+
 export class Config implements KeyDecorator {
   static load(name: string): Config {
-    const conf = parse(readFileSync(`test/conf/${name}.yaml`, "utf8"));
+    const conf = parse(readFileSync(`${CONFIG_DIR}/${name}.yaml`, "utf8"));
     return new Config(conf.name, conf.context, conf.namespace, conf.profile, conf.account, conf.region);
   }
 

@@ -20,6 +20,10 @@ export class Config implements KeyDecorator {
     public readonly region: string
   ) {}
 
+  public stackName(name: string): string {
+    return kebabCase(`${this.name}-${name}`);
+  }
+
   // multiple key decorators can be used within a codebase. Ex. one for
   // environments, one for clients, another for system stuff, etc.
   // /client/environment/my/key
@@ -30,4 +34,4 @@ export class Config implements KeyDecorator {
 }
 
 // Assigning the decorator method to a const just makes them easier to work with.
-export const ConfigKeyDecorator = Config.prototype.getKeyName;
+export const EnvKeyPrototype = Config.prototype.getKeyName;

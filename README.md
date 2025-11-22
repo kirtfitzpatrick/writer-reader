@@ -149,3 +149,17 @@ export class EksClusterStack extends Stack {
 ## Cfn Token System
 
 This
+
+## Local Testing
+
+```bash
+writer-reader (main)$ npm run build; npm pack
+
+
+test $ npm i $(realpath "$(pwd)/../writer-reader/writer-reader-1.0.0.tgz")
+test $ npx cfn-tokens.sh central sigma list
+test $ tree conf
+conf
+├── central.yaml
+└── sigma.yaml
+```

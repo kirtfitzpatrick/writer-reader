@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
 source ${SCRIPT_DIR}/functions.sh
 
 
 function _help {
   cat <<-EOM
 Usage:
-  $0 APP_FILE CONFIG CDK_CMD 
+  $0 WRITER_CONFIG READER_CONFIG CDK_CMD [CDK_OPTIONS...]
 
 EOM
   echo ""
@@ -19,14 +18,14 @@ if [ $# -eq 0 ]; then
   exit 1
 fi
 
-APP_FILE_NAME=$1
-CONF_NAME=$2
+APP_FILE_NAME="node_modules/writer-reader/dist/src/cfn-token/app.js"
+WRITER_CONF_NAME=$1
+READER_CONF_NAME=$2
 CDK_CMD=$3
 REST=("${@:4}")
 
-APP_STR="npx ts-node --prefer-ts-exts "${APP_FILE_NAME}" ${CONF_NAME}"
-PASS_THROUGH_PARAMS="${CDK_CMD} ${REST[*]} -o templates"
-
+APP_STR="npx ts-node --prefer-ts-exts "${APP_FILE_NAME}" ${WRITER_CONF_NAME} ${READER_CONF_NAME}"
+PASS_THROUGH_PARAMS="${CDK_CMD} ${REST[*]}"
 
 echo "App File: ${APP_FILE_NAME}"
 echo "Config Name: ${CONF_NAME}"
@@ -47,7 +46,6 @@ if [[ -v FLEX_COLUMNS ]]; then
 fi
 
 _echo_run "npx cdk -a '${APP_STR}' ${PASS_THROUGH_PARAMS}"
-# echo "npx cdk -a '${APP_STR}' ${PASS_THROUGH_PARAMS}"
 EXIT_STATUS=$?
 _say "finished"
 

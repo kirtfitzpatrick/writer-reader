@@ -3,10 +3,16 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "commonjs",
   "license": "Apache-2.0",
   "private": true,
+  "files": [
+    "dist",
+    "bin"
+  ],
   "bin": {
     "deploy_aws.sh": "./bin/deploy_aws.sh",
+    "cfn-tokens.sh": "./bin/cfn-tokens.sh",
     "functions.sh": "./bin/functions.sh"
   },
   "engines": {

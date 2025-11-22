@@ -2,6 +2,7 @@ import { Stack } from "aws-cdk-lib";
 import { ArnPrincipal, PolicyDocument, PolicyStatement, Role } from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 import { cfnLabel } from "../lib/labels";
+import { debugLog } from "../lib/log";
 import { AssumeRoleStack } from "./assume-role-stack";
 import { JigStackProps } from "./jig";
 import { CfnTokenLocations } from "./macro-stack";
@@ -19,7 +20,7 @@ export class ReadAccessRoleStack extends Stack {
 
   constructor(scope: Construct, id: string, props: ReadAccessRoleStackProps) {
     super(scope, id, props);
-    console.log(id, props.env);
+    debugLog(id, props.env);
 
     new Role(this, ReadAccessRoleStack.roleName(props), {
       roleName: ReadAccessRoleStack.roleName(props),

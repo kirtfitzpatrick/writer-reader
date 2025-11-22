@@ -4,6 +4,7 @@ import { Bucket } from "aws-cdk-lib/aws-s3";
 import { Construct } from "constructs";
 import { cloneDeep } from "lodash";
 import { AwsParameterStoreStringReader } from "../../src/dependency/aws-parameter-store-dependency";
+import { debugLog } from "../../src/lib/log";
 import { AWS_TARGET, JigStackProps } from "./jig";
 import { S3StackWriters } from "./s3-stack";
 
@@ -19,7 +20,7 @@ export const DomainStackReaders = {
 export class DomainStack extends Stack {
   constructor(scope: Construct, id: string, props: JigStackProps) {
     super(scope, id, props);
-    console.log(id, props.env);
+    debugLog(id, props.env);
 
     const hostedZone = HostedZone.fromLookup(this, "HostedZone", {
       domainName: TLD,
@@ -33,7 +34,7 @@ export class DomainStack extends Stack {
       props.env?.region || "us-east-1",
       props.targetConf.region
     );
-    console.log("Domain name for origin bucket website:", domainName);
+    debugLog("Domain name for origin bucket website:", domainName);
     const record = new CnameRecord(this, "CnameRecord", {
       zone: hostedZone,
       recordName: "hello",

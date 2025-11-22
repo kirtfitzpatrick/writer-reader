@@ -3,8 +3,11 @@ import { Role } from "aws-cdk-lib/aws-iam";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
+import { existsSync } from "fs";
+import { join } from "path";
 import { AwsLocation } from "../dependency/locations";
 import { cfnLabel } from "../lib/labels";
+import { debugLog } from "../lib/log";
 import { AssumeRoleStack } from "./assume-role-stack";
 import { JigStackProps } from "./jig";
 import { MacroEventParams } from "./macro";
@@ -51,11 +54,16 @@ export class MacroStack extends Stack {
 
   constructor(scope: Construct, id: string, props: MacroStackProps) {
     super(scope, id, props);
-    console.log(id, props.env);
+    debugLog(id, props.env);
+    let lambdaPath = join(__dirname, "macro.ts");
+
+    if (!existsSync(lambdaPath)) {
+      lambdaPath = join(__dirname, "macro.js");
+    }
 
     new NodejsFunction(this, "Lambda", {
       functionName: MacroStack.lambdaName(props),
-      entry: "src/cfn-token/macro.ts",
+      entry: lambdaPath,
       handler: "handler",
       role: Role.fromRoleArn(this, "Role", AssumeRoleStack.roleArn(props)),
       runtime: Runtime.NODEJS_22_X,

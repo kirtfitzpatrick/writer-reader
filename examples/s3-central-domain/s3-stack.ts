@@ -5,19 +5,20 @@ import { Construct } from "constructs";
 import { cloneDeep } from "lodash";
 import { join } from "path";
 import { AwsParameterStoreStringWriter } from "../../src/dependency/aws-parameter-store-dependency";
-import { ConfigKeyDecorator } from "./config";
+import { debugLog } from "../../src/lib/log";
+import { EnvKeyPrototype } from "./config";
 import { FULL_DOMAIN } from "./domain-stack";
 import { JigStackProps } from "./jig";
 
 export const S3StackWriters = {
-  bucketArn: new AwsParameterStoreStringWriter(["origin-bucket-arn"], ConfigKeyDecorator),
+  bucketArn: new AwsParameterStoreStringWriter(["origin-bucket-arn"], EnvKeyPrototype),
 } as const;
 
 // S3 bucket is deployed to the target account/region
 export class S3Stack extends Stack {
   constructor(scope: Construct, id: string, props: JigStackProps) {
     super(scope, id, props);
-    console.log(id, props.env);
+    debugLog(id, props.env);
 
     const bucket = new Bucket(this, "Bucket", {
       versioned: true,

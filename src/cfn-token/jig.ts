@@ -28,9 +28,9 @@ export class Jig extends JigBase {
     this.writerConf = Config.load(writer);
     this.readerConf = Config.load(reader);
     this.sources = {
-      [AWS_WRITER]: new AwsCliSource(this.writerConf.profile, this.writerConf.region, { debug: true }),
-      [AWS_GLOBAL]: new AwsCliSource(this.writerConf.profile, AWS_GLOBAL_REGION, { debug: true }),
-      [AWS_READER]: new AwsCliSource(this.readerConf.profile, this.readerConf.region, { debug: true }),
+      [AWS_WRITER]: new AwsCliSource(this.writerConf.profile, this.writerConf.region),
+      [AWS_GLOBAL]: new AwsCliSource(this.writerConf.profile, AWS_GLOBAL_REGION),
+      [AWS_READER]: new AwsCliSource(this.readerConf.profile, this.readerConf.region),
     };
   }
 
