@@ -1,4 +1,4 @@
 name: central
-profile: 330938320743_AdministratorAccess
-account: 330938320743
+profile: 123456789012_AdministratorAccess # Replace with your own AWS profile
+account: 123456789012 # Replace with your own AWS account ID
 region: us-east-1

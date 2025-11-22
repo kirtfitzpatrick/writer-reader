@@ -1,0 +1,6 @@
+name: example
+context: k3d-example-cluster
+namespace: default
+profile: 123456789012_AdministratorAccess
+account: 123456789012
+region: us-east-1

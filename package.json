@@ -5,7 +5,6 @@
   "types": "dist/index.d.ts",
   "type": "commonjs",
   "license": "Apache-2.0",
-  "private": true,
   "files": [
     "dist",
     "bin"

@@ -1,6 +1,0 @@
-name: central
-context: k3d-central
-namespace: default
-profile: 330938320743_AdministratorAccess
-account: 330938320743
-region: us-east-1

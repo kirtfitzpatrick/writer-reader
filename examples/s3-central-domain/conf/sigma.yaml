@@ -1,4 +1,4 @@
 name: sigma
-profile: 668318664362_AdministratorAccess
-account: 668318664362
+profile: 234567890123_AdministratorAccess # Replace with your own AWS profile
+account: 234567890123 # Replace with your own AWS account ID
 region: us-west-2
