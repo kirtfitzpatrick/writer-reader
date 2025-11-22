@@ -9,7 +9,7 @@ stores are:
 - k8s Secret
 
 What this allows you to do is to label and store vital info like a IDs, ARNs,
-secret credentials, and so on that were created by one AWS stack or k8s chart
+secret credentials, and so on that were created by an AWS stack or k8s chart
 in one location and needed by another stack or Kubernetes chart somewhere else.
 It's dependencies simplified, cross account, cross region, and cross platform.
 
@@ -23,7 +23,7 @@ same CDK app with stacks all deploying and relying on each other in different
 accounts and regions and it sorts out the complexity for you.
 
 This handles accurately labeling dependencies through the KeyDecorator
-system and it handles knowing where to fetch the dependency through
+system and it handles knowing where to fetch the dependency from through
 the WrittenLocation system.
 
 It can also be used to export dependencies via npm for use by other codebases.
@@ -44,11 +44,12 @@ with little effort.
 Check the examples directory for a basic example of the Writer Reader system
 being used across accounts and regions within a single app. This is something
 CDK can't do. Not only can it not do it within an app, but it absolutely can't
-do it across apps which any mature system will need to do.
+do it across apps, which any mature system will need to do.
 
-Generally you'll define your Writers and Readers as `const`s at the top of your
-stack and chart files. It makes the code more readable this way as well as makes
-for easy importing and use by the Readers that need to retrieve the Writers data.
+Generally you'll define your Writers and Readers as `const`'s at the top of your
+stack and chart files. It makes the code more readable as well as easier for
+importing and use by the Readers that need to utilize the writers to regenerate
+the correct keys names to fetch the thing.
 
 ```typescript
 // vpc-stack.ts
@@ -59,7 +60,7 @@ for easy importing and use by the Readers that need to retrieve the Writers data
  * will be configs of some sort. This is about code reuse after all. Same code,
  * different config file.
  * Even Readers will call the Writer to generate the key for maximum consistency.
- * For convenience you would usually pre-assign prototypes to consts at the
+ * For convenience you would usually pre-assign prototypes to `const`'s at the
  * bottom of whatever your decorator file is. Ex.
  * const EnvKeyPrototype = Config.prototype.genEnvKey;
  */
@@ -109,7 +110,7 @@ export class VpcStack extends Stack {
  * i.e. dev, stage, prod-us-east-1, prod-eu, acme-prod-eu, etc.
  * The decorator prototype contained in the Writer constant knows how to
  * generate the key and the jig knows which account and region to go looking
- * for the specified location. i.e. AWS_TARGET
+ * for the specified location. i.e. It know what AWS_TARGET means.
  */
 export const EksStackReaders = {
   vpcId: new AwsParameterStoreStringReader(VpcStackWriters.vpcId, AWS_TARGET),
