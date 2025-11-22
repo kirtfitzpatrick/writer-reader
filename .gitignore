@@ -9,3 +9,4 @@ templates/
 .envrc
 aws-sso-config
 cdk.context.json
+*.tgz
