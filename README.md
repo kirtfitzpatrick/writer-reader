@@ -48,9 +48,8 @@ the correct key names to fetch the thing.
 /**
  * The Writer maintains the string constant and decorator prototype to generate
  * the correct key for the thing being stored. Usually the decorator objects
- * will be configs of some sort. This is about code reuse after all. Same code,
- * different config file.
- * Readers will call the Writer to generate the key for maximum consistency.
+ * will be configs of some sort. Readers will call the Writer to generate
+ * the key for maximum consistency.
  */
 export const VpcStackWriters = {
   vpcId: new AwsParameterStoreStringWriter(["vpc-id"], Config.prototype.genEnvKey),
@@ -67,8 +66,10 @@ export class VpcStack extends Stack {
       natGateways: 1,
     });
 
-    // You may want to clone the Writers incase this stack gets used multiple
-    // times within an app
+    /**
+     * It's good practice to clone the Writers incase this stack gets
+     * used multiple times within an app
+     */
     const writers = cloneDeep(VpcStackWriters);
     writers.vpcId.value = vpc.vpcId; // Assign the value
 
