@@ -14,17 +14,17 @@ in one location and needed by another stack or Kubernetes chart somewhere else.
 It's dependencies simplified, cross account, cross region, and cross platform.
 
 This opens up and streamlines code organization allowing you to scale infra
-codebases while also integrating construct based toolkits in a far more
-productive manner.
+codebases while also integrating construct based tool kits with each other in
+a far more productive manner.
 
 With the CfnToken system it can resolve the AWS native dependencies at deploy
 time by CloudFormation which allows you to put complex dependencies within the
 same CDK app with stacks all deploying and relying on each other in different
 accounts and regions and it sorts out the complexity for you.
 
-This handles accurately labeling dependencies through the KeyDecorator
+This handles accurately labeling dependencies through the `KeyDecorator`
 system and it handles knowing where to fetch the dependency from through
-the WrittenLocation system.
+the `WrittenLocation` system.
 
 It can also be used to export dependencies via npm for use by other codebases.
 For example you could have a company wide platform that exports much of the
@@ -32,24 +32,15 @@ information needed by smaller apps such as VPC ID, and then developers can
 import the Writers they need into their app via npm and use them via a Reader.
 And it will be strongly typed all the way through from the app to the platform.
 
-## Jigs
-
-The Jig system is a later addition to the Writer Reader system that vastly
-increases it's capability and ease of use. It's what allows the Writer/Reader
-system to multiplex across regions and accounts and keep everything straight
-with little effort.
-
-## Example
+## Writer Reader Example
 
 Check the examples directory for a basic example of the Writer Reader system
-being used across accounts and regions within a single app. This is something
-CDK can't do. Not only can it not do it within an app, but it absolutely can't
-do it across apps, which any mature system will need to do.
+being used across accounts and regions within a single app.
 
 Generally you'll define your Writers and Readers as `const`'s at the top of your
 stack and chart files. It makes the code more readable as well as easier for
-importing and use by the Readers that need to utilize the writers to regenerate
-the correct keys names to fetch the thing.
+importing and use by the Readers that need to utilize the Writers to regenerate
+the correct key names to fetch the thing.
 
 ```typescript
 // vpc-stack.ts
@@ -59,10 +50,7 @@ the correct keys names to fetch the thing.
  * the correct key for the thing being stored. Usually the decorator objects
  * will be configs of some sort. This is about code reuse after all. Same code,
  * different config file.
- * Even Readers will call the Writer to generate the key for maximum consistency.
- * For convenience you would usually pre-assign prototypes to `const`'s at the
- * bottom of whatever your decorator file is. Ex.
- * const EnvKeyPrototype = Config.prototype.genEnvKey;
+ * Readers will call the Writer to generate the key for maximum consistency.
  */
 export const VpcStackWriters = {
   vpcId: new AwsParameterStoreStringWriter(["vpc-id"], Config.prototype.genEnvKey),
@@ -90,8 +78,7 @@ export class VpcStack extends Stack {
      * KeyDecorator it was created with which is just a method
      * prototype that exists on the targetConf object below. By specifying
      * decorator prototypes in this way it allows you to have multiple decorators
-     * on a single class that implements the KeyDecorator interface, in this case
-     * it's a config object that implements it.
+     * on a single class that implements the KeyDecorator interface.
      */
     writers.vpcId.dehydrate(this, props.targetConf);
   }
@@ -124,15 +111,15 @@ export class EksClusterStack extends Stack {
   constructor(scope: Construct, id: string, props: JigStackProps) {
     super(scope, id, props);
 
+    /**
+     * tokenize makes use of the pre-deployed cfn-token stacks that install
+     * cfn macros (lambdas) and the appropriate roles to allow CloudFormation
+     * to resolve the dependency at deploy time. The token is a Fn::Transform.
+     * Alternatively the command line sources can be used via the .fetch
+     * method if the cfn-token system is not desired or this is being used by
+     * a non-CloudFormation tool such as cdk8s.
+     */
     const vpc = Vpc.fromLookup(this, "ImportedVpc", {
-      /**
-       * tokenize makes use of the pre-deployed cfn-token stacks that install
-       * cfn macros (lambdas) and the appropriate roles to allow CloudFormation
-       * to resolve the dependency at deploy time. The token is a Fn::Transform.
-       * Alternatively the command line sources can be used via the .fetch
-       * method if the cfn-token system is not desired or this is being used by
-       * a non-CloudFormation tool such as cdk8s.
-       */
       vpcId: EksStackReaders.vpcId.tokenize(this, props),
     });
 
@@ -149,17 +136,116 @@ export class EksClusterStack extends Stack {
 }
 ```
 
+## Architecture / Terms
+
+### KeyDecorator
+
+The decorator classes and prototypes are what define the ParameterStore,
+ConfigMap, and SecretsManager keys that values are
+stored under. Usually this would be something like a client name, an
+environment name, and the Writer constant, all joined together and pushed
+through a formatting function to kebab case, pascal case, or whatever naming
+convention you use. You can even make use of 2D labels like `/Env/Client/FooBar`.
+
+A `KeyDecorator` is just a class that implements at least one
+`KeyDecoratorPrototype` which is just a method with this signature:
+
+```typescript
+export class SomeClass extends KeyDecorator {
+  public someMethod(...args: string[]): string { ...  }
+}
+```
+
+You may want to assign that method prototype to a constant to make working with
+it easier and more obvious. i.e.
+
+```typescript
+export const SOME_KEY_PROTOTYPE = SomeClass.prototype.someMethod;
+```
+
+### WrittenLocation
+
+`WrittenLocation`s are how we logically represent where to find a thing.
+You may have several services that depend on each other that exist in various
+environments from `dev` to `prod`. You use `WrittenLocation`s to represent those
+relationships.
+
+`SERVICE_A`, `SERVICE_B`, `SERVICE_B_GLOBAL`, `CENTRAL`, etc. These can all be
+`WrittenLocations` that exist in many environments from `dev` to `production`.
+You should use config files to define the specifics of each location type's
+accounts, regions, contexts, etc. and select them via the command line.
+
+## Jigs
+
+The Jig system is a later addition to the Writer Reader system that vastly
+increases it's capability and ease of use. It's what allows the Writer Reader
+system to multiplex across regions and accounts and keep everything straight
+with little effort.
+
+A company's infrastructure setup could be made up of any number of different
+types of environments and systems. The most basic system is a series of
+environments, dev, prod-us, prod-eu, etc. and a central account for things like
+pipelines, master domains, identity management and anything else that must be
+centrally managed. However systems can get a lot more complex than that so
+implementation is left as a task for the user. The good news is since Jigs are
+representative of the logical organization of your infrastructure at a
+high level, they can be implemented once and used everywhere.
+
+### Overview of a Jig
+
+A Jig has four primary responsibilities:
+
+- Sources
+- Locations
+- The Target Decorator
+- The Local Location
+
+#### Sources
+
+Sources allow you to fetch things from locations. The only sources implemented
+at this time are process env, kubectl cli, and aws cli sources. They should be
+organized by the location they fetch from, be it a specific k8s cluster or
+an AWS account and region.
+
+There is also the option to use the Cfn Token system when working within
+CloudFormation and since that system avoids fetching anything during the synth
+it requires no sources.
+
+#### Locations
+
+`WrittenLocation`s are how we logically represent where to find a thing. By
+defining them with the `createWrittenLocation` function it strongly types them
+while still allowing you to make as many different location types as your system
+requires.
+
+```typescript
+export const AWS_TARGET = createWrittenLocation("AWS_TARGET");
+```
+
+#### Target
+
+There is always a target. Everything belongs to something. A service may have
+things that need to be deployed to many accounts and regions. Since those
+things all only exist to service the target, they should all be labeled as such.
+
+It may be helpful to mention that labeling a thing, and where that thing is
+located are usually completely unrelated.
+
+#### Local Location
+
+The local location is simply where this thing is actually being deployed to
+right now. It's how we know where we are. It let's us take shortcuts.
+
 ## Cfn Token System
 
 To make use of the deploy time resolving CloudFormation transforms you'll need
 to pre deploy some stacks into your accounts. It's built into the package and
 the stacks are setup in a one-way orientation. To have one account read from
 another you'll have to deploy one set of stacks. To have them both read from
-each other you'll need to include the reverse as well. They're namespaced pretty
-well so you should be fine even in complex systems.
+each other you'll need to include the reverse as well.
 
 To simplify things the `writer-reader` package includes a `cfn-tokens.sh` script.
-exec without arguments for help.
+Exec it without arguments to display the help.
 At present time it expects a `conf` directory at the root of the project
 containing yaml files which in turn contain the aws profile, account number,
 and region.
@@ -179,6 +265,18 @@ Usage:
 npx cfn-tokens.sh central sigma list
 npx cfn-tokens.sh central sigma diff 'central/*'
 npx cfn-tokens.sh central sigma deploy 'central/*'
+```
+
+### Configs
+
+An example config for the Cfn Tokens system is below.
+
+```yaml
+# conf/example.yaml
+name: example
+profile: 123456789012_AdministratorAccess
+account: 123456789012
+region: us-east-1
 ```
 
 ## Local Testing

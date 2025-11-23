@@ -8,15 +8,12 @@ const CONFIG_DIR = "conf";
 export class Config implements KeyDecorator {
   static load(name: string): Config {
     const conf = parse(readFileSync(`${CONFIG_DIR}/${name}.yaml`, "utf8"));
-    return new Config(conf.name, conf.context, conf.namespace, conf.profile, conf.account, conf.region);
+    return new Config(conf.name, conf.profile, conf.account, conf.region);
   }
 
   constructor(
     // crucial for decorating keys
     public readonly name: string, //
-    // k8s cli source properties
-    public readonly context: string,
-    public readonly namespace: string,
     // AWS CLI source properties
     public readonly profile: string,
     public readonly account: string,
