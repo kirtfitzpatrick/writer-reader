@@ -10,3 +10,5 @@ templates/
 aws-sso-config
 cdk.context.json
 *.tgz
+**/sigma.yaml
+**/central.yaml
