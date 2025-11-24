@@ -14,8 +14,8 @@ in one location and needed by another stack or Kubernetes chart somewhere else.
 It's dependencies simplified, cross account, cross region, and cross platform.
 
 This opens up and streamlines code organization allowing you to scale infra
-codebases while also integrating construct based tool kits with each other in
-a far more productive manner.
+codebases while also integrating construct based tool kits like CDK & cdk8s
+with each other in a more productive manner.
 
 With the CfnToken system it can resolve the AWS native dependencies at deploy
 time by CloudFormation which allows you to put complex dependencies within the
@@ -23,14 +23,14 @@ same CDK app with stacks all deploying and relying on each other in different
 accounts and regions and it sorts out the complexity for you.
 
 This handles accurately labeling dependencies through the `KeyDecorator`
-system and it handles knowing where to fetch the dependency from through
+system and it handles knowing where to fetch the dependencies from through
 the `WrittenLocation` system.
 
 It can also be used to export dependencies via npm for use by other codebases.
 For example you could have a company wide platform that exports much of the
 information needed by smaller apps such as VPC ID, and then developers can
-import the Writers they need into their app via npm and use them via a Reader.
-And it will be strongly typed all the way through from the app to the platform.
+import the Writers they need into their app via `package.json` and use them
+via a Reader. And it will be strongly typed from the app to the platform.
 
 ## Writer Reader Example
 
@@ -39,7 +39,7 @@ being used across accounts and regions within a single app.
 
 Generally you'll define your Writers and Readers as `const`'s at the top of your
 stack and chart files. It makes the code more readable as well as easier for
-importing and use by the Readers that need to utilize the Writers to regenerate
+`import` and use by the Readers that need to utilize the Writers to regenerate
 the correct key names to fetch the thing.
 
 This is based on the idea that you have many logically identical environments
@@ -81,12 +81,11 @@ export class VpcStack extends Stack {
     /**
      * dehydrate creates the Parameter Store StringParameter
      * construct as part of this stack's scope. It names it
-     * automatically by calling the KeyDecorator it was created
-     * with which is just a method prototype that exists on
+     * automatically by calling its KeyDecorator which is
+     * just a method prototype that exists on
      * the targetConf object below. By specifying decorator
      * prototypes in this way it allows you to have multiple
-     * decorators * on a single class that implements the
-     * KeyDecorator interface.
+     * decorators on a single KeyDecorator class.
      */
     writers.vpcId.dehydrate(this, props.targetConf);
   }
@@ -100,10 +99,7 @@ export class VpcStack extends Stack {
  * the Writer const object which maintains a single source of
  * truth for the key and maintains strong types and refactorability
  * throughout. We also specify the location where to find the
- * VPC ID since if we depend on a thing we will certainly know
- * where it is. WrittenLocations represent any sort of logical
- * unit like environments, client / environment pairs, or
- * service / env pairs. i.e. dev, prod-eu, acme-prod-eu, etc.
+ * VPC ID.
  *
  * Readers will call the Writer to generate the key for maximum
  * consistency.
@@ -115,7 +111,7 @@ export const EksStackReaders = {
 /**
  * This is a bad example because Eks deploys to the same account
  * and region as the VPC. See the examples directory for something
- * more clever.
+ * more advanced.
  */
 export class EksClusterStack extends Stack {
   constructor(scope: Construct, id: string, props: JigStackProps) {
@@ -127,7 +123,7 @@ export class EksClusterStack extends Stack {
      * roles to allow CloudFormation to resolve the dependency
      * at deploy time. The token is a Fn::Transform. Alternatively
      * the command line sources can be used via the .fetch
-     * method if the cfn-token system is not desired or this
+     * methods if the cfn-token system is not desired or this
      * is being used by a non-CloudFormation tool such as cdk8s.
      */
     const vpc = Vpc.fromLookup(this, "ImportedVpc", {
@@ -158,8 +154,8 @@ environment name, and the Writer constant, all joined together and pushed
 through a formatting function to kebab case, pascal case, or whatever naming
 convention you use. You can even make use of 2D labels like `/Env/Client/FooBar`.
 
-A `KeyDecorator` is just a class that implements at least one
-`KeyDecoratorPrototype` which is just a method with this signature:
+A `KeyDecorator` is a lazy way of providing strong typing for classes that
+implement `KeyDecoratorPrototype` methods. They have this signature:
 
 ```typescript
 export class SomeClass extends KeyDecorator {
@@ -181,17 +177,20 @@ You may have several services that depend on each other that exist in various
 environments from `dev` to `prod`. You use `WrittenLocation`s to represent those
 relationships.
 
+WrittenLocations represent any sort of logical unit like environments, client
+/ environment pairs, or service / env pairs. i.e. dev, prod-eu, acme-prod-eu,
+etc.
+
 `SERVICE_A`, `SERVICE_B`, `SERVICE_B_GLOBAL`, `CENTRAL`, etc. These can all be
 `WrittenLocations` that exist in many environments from `dev` to `production`.
-You should use config files to define the specifics of each location type's
-accounts, regions, contexts, etc. and select them via the command line.
+You should use config files and a Jig to define the specifics of each location
+type's accounts, regions, contexts, etc. and select them via the command line.
 
 ## Jigs
 
 The Jig system is a later addition to the Writer Reader system that vastly
 increases it's capability and ease of use. It's what allows the Writer Reader
-system to multiplex across regions and accounts and keep everything straight
-with little effort.
+system to multiplex across regions and accounts with ease.
 
 A company's infrastructure setup could be made up of any number of different
 types of environments and systems. The most basic system is a series of
@@ -240,7 +239,7 @@ things that need to be deployed to many accounts and regions. Since those
 things all only exist to service the target, they should all be labeled as such.
 
 It may be helpful to mention that labeling a thing, and where that thing is
-located are usually completely unrelated.
+located are usually unrelated.
 
 #### Local Location
 
@@ -260,6 +259,20 @@ Exec it without arguments to display the help.
 At present time it expects a `conf` directory at the root of the project
 containing yaml files which in turn contain the aws profile, account number,
 and region.
+
+### AwsLocation
+
+The Cfn Token system has more demanding requirements for naming and location
+info and has it's own location interface. Jigs will need to provide
+`WrittenLocation`s that implement the AwsLocation interface.
+
+```typescript
+export interface AwsLocation {
+  envName: string;
+  account: string;
+  region: string;
+}
+```
 
 If the region of an environment is not `us-east-1` the cdk app will also deploy
 stacks to the `us-east-1` region because that's a thing in AWS. Some services
