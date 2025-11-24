@@ -260,20 +260,6 @@ At present time it expects a `conf` directory at the root of the project
 containing yaml files which in turn contain the aws profile, account number,
 and region.
 
-### AwsLocation
-
-The Cfn Token system has more demanding requirements for naming and location
-info and has it's own location interface. Jigs will need to provide
-`WrittenLocation`s that implement the AwsLocation interface.
-
-```typescript
-export interface AwsLocation {
-  envName: string;
-  account: string;
-  region: string;
-}
-```
-
 If the region of an environment is not `us-east-1` the cdk app will also deploy
 stacks to the `us-east-1` region because that's a thing in AWS. Some services
 only exist there.
@@ -294,6 +280,20 @@ npx cfn-tokens.sh central sigma deploy 'central/*'
 Currently Cfn Tokens only work for Parameter Store. I have not yet encountered
 a use case for tokenizing a secret but will be happy to implement it if
 requested.
+
+### AwsLocation
+
+The Cfn Token system has more demanding requirements for naming and location
+info and has it's own location interface. Jigs will need to provide
+`WrittenLocation`s that implement the AwsLocation interface.
+
+```typescript
+export interface AwsLocation {
+  envName: string;
+  account: string;
+  region: string;
+}
+```
 
 ### Configs
 
