@@ -75,7 +75,7 @@ export class AwsParameterStoreStringReader extends AwsParameterStoreDependency i
     return this._value;
   }
 
-  public fetch(keyDecorator: KeyDecorator, sources: { [key: WrittenLocation]: DependencySource }) {
+  public fetch(keyDecorator: KeyDecorator, sources: { [key: WrittenLocation]: DependencySource }): string {
     this._value = sources[this.writerLocation].getString(this.getKeyName(keyDecorator));
 
     return this._value;
@@ -120,4 +120,64 @@ export class AwsParameterStoreStringReader extends AwsParameterStoreDependency i
       readingLocation: locations[AWS_LOCAL],
     });
   }
+}
+
+export class AwsParameterStoreObjectWriter<TType> extends AwsParameterStoreDependency implements Writer {
+  protected _value: TType;
+
+  public set value(value: TType) {
+    this._value = value;
+  }
+
+  public get value(): TType {
+    if (this._value === undefined) {
+      throw new Error(`A value for ${this.constant} hasn't been set yet. This is likely a bug.`);
+    }
+
+    return this._value;
+  }
+
+  public dehydrate(scope: Construct, keyDecorator: KeyDecorator) {
+    const key = this.getKeyName(keyDecorator);
+    const id = kebabCase(join(this.constant, "-")); // TODO: the public should be able to customize the naming scheme
+
+    if (this.construct !== undefined) {
+      throw new Error(`A StringParameter construct for ${key} already exists. Use cloneDeep() on your deps.`);
+    }
+
+    this.construct = new StringParameter(scope, id, {
+      parameterName: key,
+      stringValue: JSON.stringify(this.value),
+    });
+  }
+}
+
+export class AwsParameterStoreObjectReader<TType> extends AwsParameterStoreDependency implements Reader {
+  protected _value: TType;
+  public writer: AwsParameterStoreObjectWriter<TType>;
+  readonly writerLocation: WrittenLocation;
+
+  constructor(writer: AwsParameterStoreObjectWriter<TType>, writerLocation: WrittenLocation) {
+    super(writer.constant, writer.decorator);
+    this.writer = writer;
+    this.writerLocation = writerLocation;
+  }
+
+  public get value(): TType {
+    if (this._value === undefined) {
+      throw new Error(`A value for ${this.constant} hasn't been fetched yet. This is likely a bug.`);
+    }
+
+    return this._value;
+  }
+
+  public fetch(keyDecorator: KeyDecorator, sources: { [key: WrittenLocation]: DependencySource }): TType {
+    this._value = JSON.parse(sources[this.writerLocation].getString(this.getKeyName(keyDecorator)));
+
+    return this._value;
+  }
+
+  /**
+   * Not sure tokenizing JSON objects is possible or useful in CloudFormation.
+   */
 }
