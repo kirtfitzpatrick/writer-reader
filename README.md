@@ -42,14 +42,19 @@ stack and chart files. It makes the code more readable as well as easier for
 importing and use by the Readers that need to utilize the Writers to regenerate
 the correct key names to fetch the thing.
 
+This is based on the idea that you have many logically identical environments
+with the same set of moving parts all built from the same code. They all have
+their own unique names, accounts, and regions. But logically if the prod
+environment has a service X, the dev environment will also have a service X.
+
 ```typescript
 // vpc-stack.ts
 
 /**
- * The Writer maintains the string constant and decorator prototype to generate
- * the correct key for the thing being stored. Usually the decorator objects
- * will be configs of some sort. Readers will call the Writer to generate
- * the key for maximum consistency.
+ * The Writer maintains the string constant and decorator
+ * prototype to generate the correct key for the thing
+ * being stored. Usually the decorator objects will be
+ * configs of some sort.
  */
 export const VpcStackWriters = {
   vpcId: new AwsParameterStoreStringWriter(["vpc-id"], Config.prototype.genEnvKey),
@@ -67,19 +72,21 @@ export class VpcStack extends Stack {
     });
 
     /**
-     * It's good practice to clone the Writers incase this stack gets
-     * used multiple times within an app
+     * It's good practice to clone the Writers incase this
+     * stack gets used multiple times within an app
      */
     const writers = cloneDeep(VpcStackWriters);
     writers.vpcId.value = vpc.vpcId; // Assign the value
 
     /**
-     * dehydrate creates the Parameter Store StringParameter construct as part
-     * of this stack's scope. It names it automatically by calling the
-     * KeyDecorator it was created with which is just a method
-     * prototype that exists on the targetConf object below. By specifying
-     * decorator prototypes in this way it allows you to have multiple decorators
-     * on a single class that implements the KeyDecorator interface.
+     * dehydrate creates the Parameter Store StringParameter
+     * construct as part of this stack's scope. It names it
+     * automatically by calling the KeyDecorator it was created
+     * with which is just a method prototype that exists on
+     * the targetConf object below. By specifying decorator
+     * prototypes in this way it allows you to have multiple
+     * decorators * on a single class that implements the
+     * KeyDecorator interface.
      */
     writers.vpcId.dehydrate(this, props.targetConf);
   }
@@ -89,36 +96,39 @@ export class VpcStack extends Stack {
 ```typescript
 // eks-stack.ts
 /**
- * To retrieve the VPC ID we use a Reader instantiated using the Writer const
- * object which maintains a single source of truth for the key and maintains
- * strong types and refactorability throughout. We also specify the location
- * where to find the VPC ID since if we depend on a thing we will certainly
- * know where it is. Targets always exist but could be any sort of environment
- * or other logical unit like a client / environment or service / env pair.
- * i.e. dev, stage, prod-us-east-1, prod-eu, acme-prod-eu, etc.
- * The decorator prototype contained in the Writer constant knows how to
- * generate the key and the jig knows which account and region to go looking
- * for the specified location. i.e. It know what AWS_TARGET means.
+ * To retrieve the VPC ID we use a Reader instantiated using
+ * the Writer const object which maintains a single source of
+ * truth for the key and maintains strong types and refactorability
+ * throughout. We also specify the location where to find the
+ * VPC ID since if we depend on a thing we will certainly know
+ * where it is. WrittenLocations represent any sort of logical
+ * unit like environments, client / environment pairs, or
+ * service / env pairs. i.e. dev, prod-eu, acme-prod-eu, etc.
+ *
+ * Readers will call the Writer to generate the key for maximum
+ * consistency.
  */
 export const EksStackReaders = {
   vpcId: new AwsParameterStoreStringReader(VpcStackWriters.vpcId, AWS_TARGET),
 } as const;
 
 /**
- * This is a bad example because Eks deploys to the same account and region as
- * the VPC. See the examples directory for something more clever.
+ * This is a bad example because Eks deploys to the same account
+ * and region as the VPC. See the examples directory for something
+ * more clever.
  */
 export class EksClusterStack extends Stack {
   constructor(scope: Construct, id: string, props: JigStackProps) {
     super(scope, id, props);
 
     /**
-     * tokenize makes use of the pre-deployed cfn-token stacks that install
-     * cfn macros (lambdas) and the appropriate roles to allow CloudFormation
-     * to resolve the dependency at deploy time. The token is a Fn::Transform.
-     * Alternatively the command line sources can be used via the .fetch
-     * method if the cfn-token system is not desired or this is being used by
-     * a non-CloudFormation tool such as cdk8s.
+     * tokenize makes use of the pre-deployed cfn-token stacks
+     * that install cfn macros (lambdas) and the appropriate
+     * roles to allow CloudFormation to resolve the dependency
+     * at deploy time. The token is a Fn::Transform. Alternatively
+     * the command line sources can be used via the .fetch
+     * method if the cfn-token system is not desired or this
+     * is being used by a non-CloudFormation tool such as cdk8s.
      */
     const vpc = Vpc.fromLookup(this, "ImportedVpc", {
       vpcId: EksStackReaders.vpcId.tokenize(this, props),
@@ -186,8 +196,8 @@ with little effort.
 A company's infrastructure setup could be made up of any number of different
 types of environments and systems. The most basic system is a series of
 environments, dev, prod-us, prod-eu, etc. and a central account for things like
-pipelines, master domains, identity management and anything else that must be
-centrally managed. However systems can get a lot more complex than that so
+pipelines, master domains, identity management, etc.
+However systems can get a lot more complex than that so
 implementation is left as a task for the user. The good news is since Jigs are
 representative of the logical organization of your infrastructure at a
 high level, they can be implemented once and used everywhere.
@@ -267,6 +277,10 @@ npx cfn-tokens.sh central sigma list
 npx cfn-tokens.sh central sigma diff 'central/*'
 npx cfn-tokens.sh central sigma deploy 'central/*'
 ```
+
+Currently Cfn Tokens only work for Parameter Store. I have not yet encountered
+a use case for tokenizing a secret but will be happy to implement it if
+requested.
 
 ### Configs
 
