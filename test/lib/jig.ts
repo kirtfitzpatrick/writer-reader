@@ -36,9 +36,9 @@ export class Jig extends JigBase {
     this.sources = {
       [K8S_TARGET]: new KubectlSource(this.targetConf.namespace, this.targetConf.context),
       [K8S_CENTRAL]: new KubectlSource(this.centralConf.namespace, this.centralConf.context),
-      [AWS_TARGET]: new AwsCliSource(this.targetConf.profile, this.targetConf.region, { debug: true }),
-      [AWS_GLOBAL]: new AwsCliSource(this.targetConf.profile, AWS_GLOBAL_REGION, { debug: true }),
-      [AWS_CENTRAL]: new AwsCliSource(this.centralConf.profile, this.centralConf.region, { debug: true }),
+      [AWS_TARGET]: new AwsCliSource(this.targetConf.profile, this.targetConf.region),
+      [AWS_GLOBAL]: new AwsCliSource(this.targetConf.profile, AWS_GLOBAL_REGION),
+      [AWS_CENTRAL]: new AwsCliSource(this.centralConf.profile, this.centralConf.region),
     };
   }
 

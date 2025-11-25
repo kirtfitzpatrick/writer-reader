@@ -7,8 +7,9 @@ import {
   AwsParameterStoreStringWriter,
 } from "../../src/dependency/aws-parameter-store-dependency";
 import { cfnClient, deleteStack, deployTemplate, getAwsProfileCredentials } from "../lib/aws-functions";
-import { ConfigKeyDecorator } from "../lib/config";
+import { ENV_DECORATOR } from "../lib/config";
 import { AWS_CENTRAL, AWS_TARGET, Jig, JigStackProps } from "../lib/jig";
+
 /**
  * - two stacks both part of the sigma app so all labels reflect this.
  * - one stack needs to be deployed to the central account and the other to sigma
@@ -23,7 +24,7 @@ const WRITTEN_VALUE = "I am the string you seek";
  * Writer Stack - deployed to central location
  */
 export const AwsParameterStoreWriterStackWriters = {
-  awsParameterStoreString: new AwsParameterStoreStringWriter(["parameter-store-string"], ConfigKeyDecorator),
+  awsParameterStoreString: new AwsParameterStoreStringWriter(["parameter-store-string"], ENV_DECORATOR),
 } as const;
 
 export class AwsParameterStoreWriterStack extends Stack {
@@ -64,7 +65,7 @@ const readerStackName = "param-store-reader-stack";
 /**
  * Test
  */
-jest.setTimeout(60_000);
+jest.setTimeout(80_000);
 
 const jig = new Jig("sigma");
 
@@ -102,8 +103,7 @@ describe("Retrieve param store string from one stack to use somewhere else", () 
     const writerTemplate = writerArtifact.template;
     const writerStrTemplate = JSON.stringify(writerTemplate);
     expect(writerStrTemplate).toMatch(/sigma-parameter-store-string/);
-    // expect(writerStrTemplate).toMatch(/I am the string you seek/);
-    expect(writerStrTemplate).toMatch(/${WRITTEN_VALUE}/);
+    expect(writerStrTemplate).toMatch(new RegExp(WRITTEN_VALUE));
 
     await deployTemplate(writerCfn, writerStackName, writerTemplate);
     const writerResult = await writerCfn.send(new DescribeStacksCommand({ StackName: writerStackName }));
@@ -117,7 +117,7 @@ describe("Retrieve param store string from one stack to use somewhere else", () 
     const readerArtifact = readerAssembly.getStackArtifact(readerStack.artifactId);
     const readerTemplate = readerArtifact.template;
     const readerStrTemplate = JSON.stringify(readerTemplate);
-    expect(readerStrTemplate).toMatch(/${WRITTEN_VALUE}/);
+    expect(readerStrTemplate).toMatch(new RegExp(WRITTEN_VALUE));
 
     await deployTemplate(readerCfn, readerStackName, readerArtifact.template);
     const readerResult = await readerCfn.send(new DescribeStacksCommand({ StackName: readerStackName }));

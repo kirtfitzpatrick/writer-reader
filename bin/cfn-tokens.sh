@@ -18,7 +18,12 @@ if [ $# -eq 0 ]; then
   exit 1
 fi
 
-APP_FILE_NAME="node_modules/writer-reader/dist/src/cfn-token/app.js"
+if [[ -d test ]]; then
+  APP_FILE_NAME="src/cfn-token/app.ts"
+else
+  APP_FILE_NAME="node_modules/writer-reader/dist/src/cfn-token/app.js"
+fi
+
 WRITER_CONF_NAME=$1
 READER_CONF_NAME=$2
 CDK_CMD=$3

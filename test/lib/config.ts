@@ -24,10 +24,10 @@ export class Config implements KeyDecorator {
   // environments, one for clients, another for system stuff, etc.
   // /client/environment/my/key
   // /environment/some/platform/thing
-  public getKeyName(...args: string[]): string {
+  public getEnvKey(...args: string[]): string {
     return kebabCase(join([this.name, ...args], "-"));
   }
 }
 
 // Assigning the decorator method to a const just makes them easier to work with.
-export const ConfigKeyDecorator = Config.prototype.getKeyName;
+export const ENV_DECORATOR = Config.prototype.getEnvKey;
