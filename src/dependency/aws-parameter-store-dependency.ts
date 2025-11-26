@@ -16,7 +16,10 @@ export abstract class AwsParameterStoreDependency implements Dependency {
   public construct: StringParameter;
   readonly decorator: { (...args: string[]): string };
 
-  constructor(constant: string[], decorator: { (...args: string[]): string }) {
+  constructor(constant: string[] | string, decorator: { (...args: string[]): string }) {
+    if (typeof constant === "string") {
+      constant = [constant];
+    }
     this.constant = constant;
     this.decorator = decorator;
   }

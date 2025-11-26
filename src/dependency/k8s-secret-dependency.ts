@@ -11,7 +11,10 @@ export abstract class K8sSecretDependency implements Dependency {
   public construct: KubeSecret;
   readonly decorator: { (...args: string[]): string };
 
-  constructor(constant: string[], decorator: { (...args: string[]): string }) {
+  constructor(constant: string[] | string, decorator: { (...args: string[]): string }) {
+    if (typeof constant === "string") {
+      constant = [constant];
+    }
     this.constant = constant;
     this.decorator = decorator;
   }
