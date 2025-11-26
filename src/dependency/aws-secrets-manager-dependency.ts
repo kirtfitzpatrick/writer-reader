@@ -38,26 +38,6 @@ export class AwsSecretsManagerStringWriter extends AwsSecretsManagerDependency i
 
     return this._value;
   }
-
-  /**
-   * In practice this should never be used and instead the secret construct should
-   * be defined in the user's codebase and assigned to the construct property.
-   * The writer class should be used to generate the key name correctly within their code.
-   * TODO: why is this here?
-   *
-   * @param scope
-   * @param keyDecorator
-   */
-  public dehydrate(scope: Construct, keyDecorator: KeyDecorator) {
-    const key = this.getKeyName(keyDecorator);
-    const id = kebabCase(join(this.constant, "-"));
-
-    if (this.construct === undefined) {
-      throw new Error(
-        `Secrets should be defined in your code using the getKeyName method to build the correct secretName. Hardcoding secrets into templates is unsafe.`
-      );
-    }
-  }
 }
 
 export class AwsSecretsManagerStringReader extends AwsSecretsManagerDependency implements Reader {

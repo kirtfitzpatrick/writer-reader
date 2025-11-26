@@ -10,7 +10,7 @@ export interface Dependency {
 }
 
 export interface Writer extends Dependency {
-  dehydrate(scope: Construct, keyDecorator: KeyDecorator): void;
+  // dehydrate(scope: Construct, keyDecorator: KeyDecorator): void;
 }
 
 export interface Reader extends Dependency {
