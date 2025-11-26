@@ -66,8 +66,8 @@ export class AwsParameterStoreReaderStack extends Stack {
   }
 }
 
-const writerStackName = "param-store-writer-stack";
-const readerStackName = "param-store-reader-stack";
+const writerStackName = "param-store-object-writer-stack";
+const readerStackName = "param-store-object-reader-stack";
 
 /**
  * Test

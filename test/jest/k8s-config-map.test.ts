@@ -49,7 +49,6 @@ function synthChartToYaml(chart: Chart): string {
 }
 
 function kubectlApply(manifestYaml: string, context: string) {
-  console.log(`kubectl --context=${context} apply -f -`);
   execSync(`kubectl --context=${context} apply -f -`, {
     input: manifestYaml,
     stdio: ["pipe", "inherit", "inherit"],

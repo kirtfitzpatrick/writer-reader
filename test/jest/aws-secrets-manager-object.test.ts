@@ -56,15 +56,15 @@ export class AwsSecretsManagerReaderStack extends Stack {
     const readers = cloneDeep(AwsSecretsManagerReaderStackReaders);
     readers.awsSecretObject.fetch(props.targetConf, props.jig.sources);
 
-    new StringParameter(this, "retrieved-secret", {
-      parameterName: "retrieved-secret",
+    new StringParameter(this, "retrieved-secret-object", {
+      parameterName: "retrieved-secret-object",
       stringValue: JSON.stringify(readers.awsSecretObject.value),
     });
   }
 }
 
-const writerStackName = "secret-writer-stack";
-const readerStackName = "secret-reader-stack";
+const writerStackName = "secret-writer-object-stack";
+const readerStackName = "secret-reader-object-stack";
 
 /**
  * Test

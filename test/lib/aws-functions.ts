@@ -80,7 +80,7 @@ export async function deployTemplate(cfn: CloudFormationClient, stackName: strin
     await waitUntilStackCreateComplete(
       {
         client: cfn,
-        maxWaitTime: 30 * 60, // seconds
+        maxWaitTime: 50 * 60, // seconds
       },
       { StackName: stackName }
     );
